@@ -330,7 +330,8 @@ public class PubFun {
 	public static String getPropertyValue(String keyName){
 		String value = null;
 		try{
-			ResourceBundle conf= ResourceBundle.getBundle("pro/constants");
+			ResourceBundle conf= ResourceBundle.getBundle("pro/Constants");
+			System.out.println("constants get IP:" + new String(conf.getString(keyName).getBytes("ISO8859-1"),"UTF-8"));
 			value = new String(conf.getString(keyName).getBytes("ISO8859-1"),"UTF-8");
 		} catch (Exception e){
 			logger.error(e.getMessage());

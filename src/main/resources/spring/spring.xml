@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 基于Cookie的本地化解析器 -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="cookieMaxAge" value="604800"/>
+        <property name="defaultLocale" value="zh_CN"/>
+        <property name="cookieName" value="Language"></property>
+    </bean>
+
+    <!-- 項目自定义的Realm -->
+    <bean name="ShiroRealm" class="com.on.filter.ShiroRealmPersonal" ></bean>
+
+    <!-- ================ Shiro start ================ -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="ShiroRealm" />
+    </bean>
+
+    <!-- Shiro Filter -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager" />
+
+        <property name="loginUrl" value="/" />
+
+        <property name="successUrl" value="/" />
+
+        <property name="unauthorizedUrl" value="/" />
+
+        <property name="filterChainDefinitions">
+            <value>
+            </value>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="com.on">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <!--创建指定线程池大小的ThreadPoolTaskScheduler实例-->
+    <task:scheduler id="myScheduler" pool-size="5"/>
+    <!--调度任务列表-->
+    <task:annotation-driven scheduler="myScheduler" mode="proxy"></task:annotation-driven>
+</beans>

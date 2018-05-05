@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @SpringBootApplication
-@ImportResource(locations = {"classpath:spring.xml"})
+@ImportResource(locations = {"classpath:spring/spring.xml"})
 public class OnController {
 	public static void main(String[] args) {
 		SpringApplication.run(OnController.class, args);

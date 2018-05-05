@@ -6,6 +6,7 @@ import com.on.GWData.Entity.OnAGWData;
 import com.on.GWData.repository.OnADealDataRepository;
 import com.on.GWData.repository.OnAGWDataRepository;
 import com.on.GWData.service.OnAGwDataService;
+import com.on.util.common.PageData;
 import com.on.util.common.StringHexUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,16 +74,19 @@ public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
 
                 String hexString = StringHexUtil.bytes2HexString(res);
                 mLogger.info(sdf.format(new Date(longtime))+"接收帧"+dataCount+"："+ hexString);
-
+                String imeiNo = StringHexUtil.convertHexToString(hexString.substring(0, 30));
+                String dataExp = hexString.substring(32, 52);
                 Date now = new Date(longtime);
                 System.out.println("now time is :" + now);
-                OnAGWData gwData = new OnAGWData();
-                gwData.setCollectionDatetime(now);
-                gwData.setData(hexString);
-                gwData.setImei("seymourTest");
-                gwData.setCreateDateTime(now);
-                gwData.setModifyDateTime(now);
-                onAGWDataRepository.save(gwData);
+                if (hexString.length() == 52) {
+                    OnAGWData gwData = new OnAGWData();
+                    gwData.setCollectionDatetime(now);
+                    gwData.setData(dataExp);
+                    gwData.setImei(imeiNo);
+                    gwData.setCreateDateTime(now);
+                    gwData.setModifyDateTime(now);
+                    onAGWDataRepository.save(gwData);
+                }
                 out = new DataOutputStream(socket.getOutputStream());
                 String outPutStr = "Except Data Ok";
                 out.writeUTF(outPutStr.substring(0, outPutStr.length() - 1));
@@ -107,10 +111,10 @@ public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
 
     }
 
-    public List<OnADealData> findByOrder() {
-        Pageable pageable = new PageRequest(0, 200, Sort.Direction.DESC, "id");
+    public List<OnADealData> findByOrder(PageData pd) {
+        Pageable pageable = new PageRequest(0, 5000, Sort.Direction.DESC, "id");
 //        List<OnAGWData> datas = gwDataDao.findByOrder(pageable);
-        List<OnADealData> datas = onADealDataRepository.findAllByImei("");
+        List<OnADealData> datas = onADealDataRepository.findAllByImei(pd.getString("imei_no"));
         return datas;
     }
 

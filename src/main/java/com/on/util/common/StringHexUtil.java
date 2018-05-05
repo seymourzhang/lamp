@@ -66,7 +66,31 @@ public class StringHexUtil {
         }
         return buffer.toString();
     }
-	
+
+	/**
+	 * 把16进制转字符串
+	 */
+	public static String convertHexToString(String hex){
+
+		StringBuilder sb = new StringBuilder();
+		StringBuilder temp = new StringBuilder();
+
+		//49204c6f7665204a617661 split into two characters 49, 20, 4c...
+		for( int i=0; i<hex.length()-1; i+=2 ){
+
+			//grab the hex in pairs
+			String output = hex.substring(i, (i + 2));
+			//convert hex to decimal
+			int decimal = Integer.parseInt(output, 16);
+			//convert the decimal to character
+			sb.append((char)decimal);
+
+			temp.append(decimal);
+		}
+
+		return sb.toString();
+	}
+
 	/**
      * 把字节转化成2进制字符串 
      */  
@@ -89,12 +113,13 @@ public class StringHexUtil {
 	
     public static void main(String[] args)
     {
-    	byte[] byteArray = hexString2Bytes("4198CCCD");
-    	int resInt = ByteNumUtil.bytesToInt(byteArray);
-    	Float resFloat = Float.intBitsToFloat(resInt);
+//    	byte[] byteArray = hexString2Bytes("4198CCCD");
+//    	int resInt = ByteNumUtil.bytesToInt(byteArray);
+//    	Float resFloat = Float.intBitsToFloat(resInt);
+		String resString = convertHexToString("383636383733303230373236343936260A17011067DC0021CE64".substring(0, 32));
 
-    	System.out.println("resInt  :" + resInt);
-    	System.out.println("resFloat:" + resFloat);
+		System.out.println("length: " + "38363638373330323037323634393626".length());
+    	System.out.println("resString  :" + resString);
 
     }
 }
