@@ -1,0 +1,17 @@
+<nz-content style="margin:0 16px;">
+  <nz-breadcrumb style="margin:12px 0;">
+    <nz-breadcrumb-item>lamp</nz-breadcrumb-item>
+    <nz-breadcrumb-item>analyse</nz-breadcrumb-item>
+  </nz-breadcrumb>
+  <div style="height: 28px; position: relative;">
+    <nz-dropdown-button>
+      DropDown
+      <ul nz-menu *ngFor="let a of imeis">
+        <li nz-menu-item>
+          <p target="_blank" (nzClick)="initTableData(a.imei)">{{a.imei}}</p>
+        </li>
+      </ul>
+    </nz-dropdown-button>
+  </div>
+  <echarts-ng2 [option]="chartOption"></echarts-ng2>
+</nz-content>

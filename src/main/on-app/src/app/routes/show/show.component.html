@@ -1,0 +1,50 @@
+<nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">
+  <nz-content style="margin:0 16px;">
+    <nz-breadcrumb style="margin:12px 0;">
+      <nz-breadcrumb-item>lamp</nz-breadcrumb-item>
+      <nz-breadcrumb-item>data</nz-breadcrumb-item>
+    </nz-breadcrumb>
+    <div style="height: 28px; position: relative;">
+      <nz-dropdown-button>
+        DropDown
+        <ul nz-menu *ngFor="let a of imeis">
+          <li nz-menu-item>
+            <p target="_blank" (nzClick)="initTableData(a.imei)">{{a.imei}}</p>
+          </li>
+        </ul>
+      </nz-dropdown-button>
+    </div>
+    <div style="padding:24px; background: #fff; min-height: 682px; position: relative;">
+      <nz-table #nzTable [nzDataSource]="data" [nzPageSize]="50" [nzScroll]="{ x: 1100, y: 525 }">
+        <ng-template #nzFixedHeader>
+          <thead nz-thead>
+          <tr>
+            <th nz-th [nzWidth]="'10%'"><span>Id</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T1</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T2</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T3</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T4</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T5</span></th>
+            <th nz-th [nzWidth]="'10%'"><span>T6</span></th>
+            <th nz-th [nzWidth]="'15%'"><span>DateTime</span></th>
+            <th nz-th [nzWidth]="'15%'"><span>Imei</span></th>
+          </tr>
+          </thead>
+        </ng-template>
+        <tbody nz-tbody>
+        <tr nz-tbody-tr *ngFor="let data of nzTable.data">
+          <td nz-td>{{data.id}}</td>
+          <td nz-td>{{data.t1}}</td>
+          <td nz-td>{{data.t2}}</td>
+          <td nz-td>{{data.t3}}</td>
+          <td nz-td>{{data.t4}}</td>
+          <td nz-td>{{data.t5}}</td>
+          <td nz-td>{{data.t6}}</td>
+          <td nz-td>{{data.collectionDatetime}}</td>
+          <td nz-td>{{data.imei}}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-content>
+</nz-spin>

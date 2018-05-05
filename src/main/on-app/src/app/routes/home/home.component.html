@@ -1,0 +1,28 @@
+<nz-layout style="height: 100%;">
+  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed">
+    <div class="logo">
+    </div>
+    <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'">
+      <li nz-submenu>
+        <span title><i class="anticon anticon-user"></i><span class="nav-text">User</span></span>
+        <ul>
+          <li nz-menu-item [routerLink]="['show']" (click)="toShowPage()">data</li>
+          <li nz-menu-item [routerLink]="['identity']">identity</li>
+          <li nz-menu-item [routerLink]="['analyse']">wei</li>
+        </ul>
+      </li>
+      <li nz-submenu>
+        <span title><i class="anticon anticon-team"></i><span class="nav-text">Team</span></span>
+        <ul>
+          <li nz-menu-item [routerLink]="['identity']">Team 1</li>
+          <li nz-menu-item [routerLink]="['identity']">Team 2</li>
+        </ul>
+      </li>
+      <li nz-menu-item [routerLink]="['identity']"><span><i class="anticon anticon-file"></i><span class="nav-text">File</span></span></li>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <router-outlet></router-outlet>
+    <nz-footer style="text-align: center;">Seymour Design ©2018 Implement By Angular</nz-footer>
+  </nz-layout>
+</nz-layout>
