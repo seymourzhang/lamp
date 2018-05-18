@@ -5,6 +5,7 @@ import com.on.GWData.Entity.OnADealData;
 import com.on.GWData.Entity.OnAGWData;
 import com.on.GWData.repository.OnADealDataRepository;
 import com.on.GWData.repository.OnAGWDataRepository;
+import com.on.GWData.service.DeviceService;
 import com.on.GWData.service.OnAGwDataService;
 import com.on.util.common.PageData;
 import com.on.util.common.StringHexUtil;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -25,9 +27,12 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 @Service
+@Transactional(readOnly = true)
 public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
 
     private static final Logger mLogger = LoggerFactory.getLogger(OnAGwDataServiceImpl.class);
@@ -40,6 +45,12 @@ public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
 
     public void setOnAGWDataRepository(OnAGWDataRepository onAGWDataRepository){this.onAGWDataRepository = onAGWDataRepository;}
 
+    private OnAGwDataService onAGwDataService = null;
+
+    public void setDeviceService(DeviceService deviceService) {this.deviceService = deviceService;}
+
+    private DeviceService deviceService;
+
     @Autowired
     private OnAGWDataRepository gwDataDao;
 
@@ -51,9 +62,13 @@ public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
      */
     private static ServerSocket socketServer = null;
 
+    private final Lock queueLock=new ReentrantLock();
+
     @Override
+    @Transactional
     public void run() {
         long socketThreadId = 0;
+        queueLock.lock();
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");;
             String socketTaskName = sdf.format(new Date()) ;
@@ -71,35 +86,54 @@ public class OnAGwDataServiceImpl implements OnAGwDataService, Runnable {
                 bo.write(buffer, 0, length);
                 long longtime = System.currentTimeMillis();
                 byte[] res = bo.toByteArray();
-
+                String strRead = new String(res);
+                String strRead1 = String.copyValueOf(strRead.toCharArray(), 0, res.length);
+                mLogger.info("resStr format:" + strRead);
+                mLogger.info("resStr format:" + strRead1);
                 String hexString = StringHexUtil.bytes2HexString(res);
-                mLogger.info(sdf.format(new Date(longtime))+"接收帧"+dataCount+"："+ hexString);
-                String imeiNo = StringHexUtil.convertHexToString(hexString.substring(0, 30));
-                String dataExp = hexString.substring(32, 52);
+                mLogger.info(sdf.format(new Date(longtime))+"接收帧"+dataCount+"："+ strRead1);
+//                String imeiNo = StringHexUtil.convertHexToString(strRead1.substring(0, 30));
+//                String dataExp = strRead1.substring(32, 52);
                 Date now = new Date(longtime);
                 System.out.println("now time is :" + now);
-                if (hexString.length() == 52) {
+                System.out.println("strRead1 length is:" + strRead1.length());
+                String imeiNo = strRead1.substring(0, 15);
+                if (strRead1.length() == 36) {
+                    String dataExp = strRead1.substring(16, 36);
                     OnAGWData gwData = new OnAGWData();
                     gwData.setCollectionDatetime(now);
                     gwData.setData(dataExp);
                     gwData.setImei(imeiNo);
                     gwData.setCreateDateTime(now);
                     gwData.setModifyDateTime(now);
-                    onAGWDataRepository.save(gwData);
+                    OnAGWData a = deviceService.insert(gwData);
+                    mLogger.info("insert after object : " + a.getId());
+//                    onAGWDataRepository.saveAndFlush(gwData);
+                } else {
+                    String dataExp = hexString.substring(32, hexString.length());
+                    System.out.println("behind cut data :" + dataExp);
+                    if (dataExp.length() == 20) {
+                        OnAGWData gwData = new OnAGWData();
+                        gwData.setCollectionDatetime(now);
+                        gwData.setData(dataExp);
+                        gwData.setImei(imeiNo);
+                        gwData.setCreateDateTime(now);
+                        gwData.setModifyDateTime(now);
+//                        onAGWDataRepository.saveAndFlush(gwData);
+                        OnAGWData a = deviceService.insert(gwData);
+                        mLogger.info("insert after object : " + a.getId());
+                    }
                 }
-                out = new DataOutputStream(socket.getOutputStream());
-                String outPutStr = "Except Data Ok";
-                out.writeUTF(outPutStr.substring(0, outPutStr.length() - 1));
                 mLogger.info("");
                 dataCount++;
             }
-            if (out != null) out.close();
             in.close();
             mLogger.info("BBFarTask("+socketTaskName+") end   ,线程号====" + Thread.currentThread());
         }catch (Exception e) {
             e.printStackTrace();
         }finally{
 //            SocketManage.getInstance().removeSocket(BBFarConstants.DEVICE_TYPE,deviceCode,socketThreadId);
+            queueLock.unlock();
             if(socket != null){
                 try {
                     socket.close();

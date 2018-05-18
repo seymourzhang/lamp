@@ -1,4 +1,4 @@
-package com.on.schedule;
+package com.on.schedule.service;
 
 public interface JobService {
 

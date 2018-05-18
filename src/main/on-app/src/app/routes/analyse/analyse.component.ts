@@ -9,11 +9,12 @@ import {NzMessageService} from "ng-zorro-antd";
   styleUrls: ['./analyse.component.css']
 })
 export class AnalyseComponent implements OnInit {
-  base = +new Date(1968, 9, 3);
-  oneDay = 24 * 3600 * 1000;
   tempData = [];
   date = [];
   imeis: any[];
+  options = [];
+  loading = false;
+  imei;
 
   temp = Math.random() * 300;
   // data = [Math.random() * 300];
@@ -39,13 +40,15 @@ export class AnalyseComponent implements OnInit {
     }
   }
 
-  initDatas(imei) {
-    /*for (let i = 1; i < 20000; i++) {
-      let now = new Date(this.base += this.oneDay);
-      this.date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
-      this.data.push(Math.round((Math.random() - 0.5) * 20 + this.data[i - 1]));
-    }*/
+  initDatas(imei: any) {
     this._isSpinning = true;
+    this.date = [];
+    this.T1 = [];
+    this.T2 = [];
+    this.T3 = [];
+    this.T4 = [];
+    this.T5 = [];
+    this.T6 = [];
     this.valData.conn.url = '/show/lampData';
     this.valData.conn.isLocal = true;
     this.valData.conn.param = {
@@ -108,7 +111,8 @@ export class AnalyseComponent implements OnInit {
             if (val.Result === 'Success') {
               console.log("response detail imei data:", val);
               this.imeis = val.imeis;
-              this.initDatas(this.imeis[0].imei);
+              // this.imei = this.imeis[0].imei;
+              this.initDatas("");
             } else if (val.Result === 'Fail') {
               this._message.create('error', val.Error);
             }
@@ -121,6 +125,16 @@ export class AnalyseComponent implements OnInit {
         () => {
           // console.log('The POST observable is now completed.');
         });
+  }
+
+  scrollToBottom() {
+    if (!this.loading) {
+      this.loading = true;
+      setTimeout(() => {
+        // this.generateFakeData();
+        this.loading = false;
+      }, 3000);
+    }
   }
 
   initCharts() {

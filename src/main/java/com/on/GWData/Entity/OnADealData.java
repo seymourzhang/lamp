@@ -10,37 +10,37 @@ public class OnADealData {
 
     @javax.persistence.Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column
-    private Long Id;
+    @Column(name = "id")
+    private Long id;
 
-    @Column
+    @Column(name = "dealDatetime")
     private Date dealDatetime;
 
-    @Column(length = 100)
+    @Column(name = "imei", length = 100)
     private String imei;
 
-    @Column
+    @Column(name = "uuid")
     private String uuid;
 
-    @Column(length = 20)
-    private String T1;
+    @Column(name = "t1", length = 20)
+    private String t1;
 
-    @Column(length = 20)
-    private String T2;
+    @Column(name = "t2", length = 20)
+    private String t2;
 
-    @Column(length = 20)
-    private String T3;
+    @Column(name = "t3", length = 20)
+    private String t3;
 
-    @Column(length = 20)
-    private String T4;
+    @Column(name = "t4", length = 20)
+    private String t4;
 
-    @Column(length = 20)
-    private String T5;
+    @Column(name = "t5", length = 20)
+    private String t5;
 
-    @Column(length = 20)
-    private String T6;
+    @Column(name = "t6", length = 20)
+    private String t6;
 
-    @Column(length = 20)
+    @Column(name = "voltage", length = 20)
     private String voltage;
 
     @Column
@@ -50,11 +50,11 @@ public class OnADealData {
     private Date modifyDateTime;
 
     public Long getId() {
-        return this.Id;
+        return this.id;
     }
 
-    public void setId(Long Id) {
-        this.Id = Id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Date getCollectionDatetime () {
@@ -74,51 +74,51 @@ public class OnADealData {
     }
 
     public String getT1() {
-        return this.T1;
+        return this.t1;
     }
 
-    public void setT1(String T1) {
-        this.T1 = T1;
+    public void setT1(String t1) {
+        this.t1 = t1;
     }
 
     public String getT2() {
-        return this.T2;
+        return this.t2;
     }
 
-    public void setT2(String T2) {
-        this.T2 = T2;
+    public void setT2(String t2) {
+        this.t2 = t2;
     }
 
     public String getT3() {
-        return this.T3;
+        return this.t3;
     }
 
-    public void setT3(String T3) {
-        this.T3 = T3;
+    public void setT3(String t3) {
+        this.t3 = t3;
     }
 
     public String getT4() {
-        return this.T4;
+        return this.t4;
     }
 
-    public void setT4(String T4) {
-        this.T4 = T4;
+    public void setT4(String t4) {
+        this.t4 = t4;
     }
 
     public String getT5() {
-        return this.T5;
+        return this.t5;
     }
 
-    public void setT5(String T5) {
-        this.T5 = T5;
+    public void setT5(String t5) {
+        this.t5 = t5;
     }
 
     public String getT6() {
-        return this.T6;
+        return this.t6;
     }
 
-    public void setT6(String T6) {
-        this.T6 = T6;
+    public void setT6(String t6) {
+        this.t6 = t6;
     }
 
     public String getUuid() {

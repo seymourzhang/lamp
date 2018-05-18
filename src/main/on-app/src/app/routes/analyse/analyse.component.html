@@ -3,15 +3,20 @@
     <nz-breadcrumb-item>lamp</nz-breadcrumb-item>
     <nz-breadcrumb-item>analyse</nz-breadcrumb-item>
   </nz-breadcrumb>
-  <div style="height: 28px; position: relative;">
-    <nz-dropdown-button>
-      DropDown
-      <ul nz-menu *ngFor="let a of imeis">
-        <li nz-menu-item>
-          <p target="_blank" (nzClick)="initTableData(a.imei)">{{a.imei}}</p>
-        </li>
-      </ul>
-    </nz-dropdown-button>
+  <div nz-row>
+    <p nz-col [nzSpan]="1" style="position: relative; top: -2px; font-size: 20px;">imei:</p>
+    <nz-select style="width: 170px;" [(ngModel)]="imei" (nzScrollToBottom)="scrollToBottom()" (nzOpenChange)="initDatas(imei)"
+               [nzNotFoundContent]="'Empty'" [nzPlaceHolder]="'Please select'"  nz-col [nzSpan]="23">
+      <nz-option *ngFor="let option of imeis" [nzLabel]="option.imei" [nzValue]="option.imei">
+      </nz-option>
+      <nz-option [nzLabel]="'disabled'" [nzDisabled]="true" [nzValue]="'disabled'" *ngIf="loading">
+        <ng-template #nzOptionTemplate>
+          <i class="anticon anticon-loading anticon-spin"></i> Loading...
+        </ng-template>
+      </nz-option>
+    </nz-select>
   </div>
-  <echarts-ng2 [option]="chartOption"></echarts-ng2>
+  <nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">
+    <echarts-ng2 [option]="chartOption"></echarts-ng2>
+  </nz-spin>
 </nz-content>

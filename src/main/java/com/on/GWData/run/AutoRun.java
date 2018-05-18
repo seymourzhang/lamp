@@ -1,7 +1,7 @@
-package com.on.run;
+package com.on.GWData.run;
 
-import com.on.schedule.DealDataService;
-import com.on.schedule.JobService;
+import com.on.schedule.service.DealDataService;
+import com.on.schedule.service.JobService;
 import com.on.util.common.IPUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +18,13 @@ public class AutoRun {
     @Autowired
     private DealDataService dealDataService;
 
-    /*@Scheduled(cron="0 0/10 * * * ? ")
+    @Scheduled(cron="0 0/10 * * * ? ")
     public void run(){
-        jobService.start();
-    }
-
-    @Scheduled(cron="0 0/5 * * * ?")
-    public void run1() {
         if(!IPUtil.needRunTask()){
             mLogger.info("本机不启用AutoRun-DealData");
             return ;
         }
-        dealDataService.start();
-    }*/
+        jobService.start();
+    }
 
 }

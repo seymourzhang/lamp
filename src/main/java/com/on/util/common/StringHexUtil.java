@@ -116,9 +116,9 @@ public class StringHexUtil {
 //    	byte[] byteArray = hexString2Bytes("4198CCCD");
 //    	int resInt = ByteNumUtil.bytesToInt(byteArray);
 //    	Float resFloat = Float.intBitsToFloat(resInt);
-		String resString = convertHexToString("383636383733303230373236343936260A17011067DC0021CE64".substring(0, 32));
+		String resString = convertHexToString("866873020726497&0A17010246911021AD14".substring(0, 15));
 
-		System.out.println("length: " + "38363638373330323037323634393626".length());
+		System.out.println("length: " + "866873020726497&0A17010246911021AD14".length());
     	System.out.println("resString  :" + resString);
 
     }

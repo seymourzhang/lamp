@@ -11,8 +11,10 @@ export class ShowComponent implements OnInit {
 
   valData;
   _isSpinning = false;
+  loading = false;
   data: any[];
   imeis: any[];
+  imei;
   constructor(
     public http: HttpService,
     private _message: NzMessageService
@@ -21,16 +23,16 @@ export class ShowComponent implements OnInit {
       code: 'login'
       , conn: http.conn
     }
-    this.imeis = [
-      {"imei" : "123"}
-    ]
   }
 
   ngOnInit() {
     this.queryImeis();
   }
 
-  initTableData(imei :any) {
+  initTableData(imei: any) {
+    if (imei === '' || imei === null){
+      return;
+    }
     this._isSpinning = true;
     this.valData.conn.url = '/show/lampData';
     this.valData.conn.isLocal = true;
@@ -61,6 +63,17 @@ export class ShowComponent implements OnInit {
         });
   }
 
+  scrollToBottom() {
+    if (!this.loading) {
+      this.loading = true;
+      setTimeout(() => {
+        // this.generateFakeData();
+        this.queryImeis();
+        this.loading = false;
+      }, 1000);
+    }
+  }
+
   queryImeis() {
     this._isSpinning = true;
     this.valData.conn.url = '/show/queryImeis';
@@ -76,7 +89,8 @@ export class ShowComponent implements OnInit {
             if (val.Result === 'Success') {
               console.log("response detail imei data:", val);
               this.imeis = val.imeis;
-              this.initTableData(this.imeis[0].imei);
+              // this.imei = this.imeis[0].imei;
+              this.initTableData("");
             } else if (val.Result === 'Fail') {
               this._message.create('error', val.Error);
             }
