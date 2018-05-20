@@ -7,11 +7,17 @@ package com.on.util.common;
 
 import org.apache.log4j.Logger;
 
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.Query;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
+import java.util.Set;
 
 /**
 * @ClassName: IPUtil
@@ -55,7 +61,7 @@ public class IPUtil {
 	    	{
 		    	NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
 //		    	mLogger.debug("netInterface.Name==" + netInterface.getName());
-		    	Enumeration<InetAddress> address = netInterface.getInetAddresses();  
+		    	Enumeration<InetAddress> address = netInterface.getInetAddresses();
 		    	while (address.hasMoreElements())
 		    	{
 		    		ip = address.nextElement(); 
@@ -80,27 +86,42 @@ public class IPUtil {
 		}
     	return curIp;
     }
+
+	/**
+	 * 获取当前应用端口
+	 * @return
+	 */
+	public static String getTomcatPort() throws MalformedObjectNameException, NullPointerException {
+		MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
+		Set<ObjectName> objectNames = beanServer.queryNames(new ObjectName("*:type=Connector,*"),
+				Query.match(Query.attr("protocol"), Query.value("HTTP/1.1")));
+		String port = objectNames.iterator().next().getKeyProperty("port");
+
+		return port;
+	}
     
     /**
      * 判断是否需要运行批处理任务
      * @return
      */
     public static boolean needRunTask(){
-    	String proIp = ""; 
+    	String proIp = "", proPort = "";
     	try {
-			proIp = PubFun.isNull(PubFun.getPropertyValue("Pub.RunTaskIp")) ? "172.26.128.126" : PubFun.getPropertyValue("Pub.RunTaskIp");
-			mLogger.info("proIp==" + proIp);
-            mLogger.info("curIp==" + IPUtil.getCurIp());
+			proIp = PubFun.getPropertyValue("Pub.RunTaskIp");
+			proPort = PubFun.getPropertyValue("Pub.RunTashPort");
+			mLogger.info("proIp==" + proIp + ":" + proPort);
+			mLogger.info("curIp==" + IPUtil.getCurIp());
+			mLogger.info("curPort==" + IPUtil.getTomcatPort());
+			if (proIp.equals(IPUtil.getCurIp()) && proPort.equals(IPUtil.getTomcatPort())) {
+				return false;
+			} else {
+				mLogger.info("该服务器不需要跑批处理任务。。。。");
+				return true;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			proIp = "";
+			return true;
 		}
-    	if(proIp.equals(IPUtil.getCurIp())){
-    		return true;
-    	}else{
-    		mLogger.info("该服务器不需要跑批处理任务。。。。");
-    		return false;
-    	}
     }
     
 //    public static void main(String[] args) {

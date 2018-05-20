@@ -28,7 +28,7 @@
     "echarts-ng2": "^5.0.0",
     "es6-promise": "^3.3.1",
     "es6-shim": "^0.33.13",
-    "ng-zorro-antd": "^0.6.15",
+    "ng-zorro-antd": "^0.7.0",
     "ng2-echarts": "0.0.3",
     "ngx-echarts": "^2.1.0",
     "reflect-metadata": "^0.1.12",

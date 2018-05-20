@@ -29,6 +29,7 @@ export class AnalyseComponent implements OnInit {
   valData;
 
   ngOnInit() {
+    this.initCharts();
     this.queryImeis();
   }
 
@@ -82,11 +83,12 @@ export class AnalyseComponent implements OnInit {
               console.log("Date:", this.date);
               console.log("T1:", this.T1);
               this.initCharts();
+              console.info("init here ~!");
             } else if (val.Result === 'Fail') {
               this._message.create('error', val.Error);
             }
             this._isSpinning = false;
-          }, '1000');
+          }, '5000');
         },
         response => {
           console.log('Request Error: ', response);
@@ -117,7 +119,7 @@ export class AnalyseComponent implements OnInit {
               this._message.create('error', val.Error);
             }
             this._isSpinning = false;
-          }, '1000');
+          }, '5000');
         },
         response => {
           console.log('Request Error: ', response);

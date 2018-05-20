@@ -8,6 +8,8 @@ import {Router} from "@angular/router";
 })
 export class HomeComponent implements OnInit {
 
+  inco: any = "./assets/image/inco.ico";
+
   constructor(private router: Router) { }
 
   ngOnInit() {

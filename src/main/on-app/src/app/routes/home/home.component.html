@@ -1,15 +1,22 @@
 <nz-layout style="height: 100%;">
   <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed">
     <div class="logo">
+      <!--<nz-avatar [nzSrc]="inco"></nz-avatar>-->
+      <img [src]="inco">
     </div>
     <ul nz-menu [nzTheme]="'dark'" [nzMode]="isCollapsed?'vertical':'inline'">
       <li nz-submenu>
-        <span title><i class="anticon anticon-user"></i><span class="nav-text">User</span></span>
+        <span title><i class="anticon anticon-desktop"></i><span class="nav-text">desktop</span></span>
         <ul>
-          <li nz-menu-item [routerLink]="['show']" (click)="toShowPage()">data</li>
-          <li nz-menu-item [routerLink]="['identity']">identity</li>
-          <li nz-menu-item [routerLink]="['analyse']">wei</li>
+          <li nz-menu-item [routerLink]="['show']" (click)="toShowPage()"><i class="anticon anticon-database"></i>monitor</li>
+          <!--<li nz-menu-item [routerLink]="['analyse']">analyse</li>-->
+          <!--<li nz-menu-item [routerLink]="['identity']">identity</li>-->
         </ul>
+      </li>
+      <li nz-menu-item [routerLink]="['analyse']">
+        <span><i class="anticon anticon-area-chart"></i>
+          <span class="nav-text">analyse</span>
+        </span>
       </li>
       <li nz-submenu>
         <span title><i class="anticon anticon-team"></i><span class="nav-text">Team</span></span>
@@ -18,11 +25,10 @@
           <li nz-menu-item [routerLink]="['identity']">Team 2</li>
         </ul>
       </li>
-      <li nz-menu-item [routerLink]="['identity']"><span><i class="anticon anticon-file"></i><span class="nav-text">File</span></span></li>
     </ul>
   </nz-sider>
   <nz-layout>
     <router-outlet></router-outlet>
-    <nz-footer style="text-align: center;">Seymour Design ©2018 Implement By Angular</nz-footer>
+    <nz-footer style="text-align: center; bottom: 6px; position: absolute; left: 42%;">Seymour Design ©2018 Implement By Angular</nz-footer>
   </nz-layout>
 </nz-layout>

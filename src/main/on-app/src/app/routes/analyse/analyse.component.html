@@ -1,4 +1,4 @@
-<nz-content style="margin:0 16px;">
+<nz-content style="margin:0 16px; height: 100%;">
   <nz-breadcrumb style="margin:12px 0;">
     <nz-breadcrumb-item>lamp</nz-breadcrumb-item>
     <nz-breadcrumb-item>analyse</nz-breadcrumb-item>
@@ -6,7 +6,7 @@
   <div nz-row>
     <p nz-col [nzSpan]="1" style="position: relative; top: -2px; font-size: 20px;">imei:</p>
     <nz-select style="width: 170px;" [(ngModel)]="imei" (nzScrollToBottom)="scrollToBottom()" (nzOpenChange)="initDatas(imei)"
-               [nzNotFoundContent]="'Empty'" [nzPlaceHolder]="'Please select'"  nz-col [nzSpan]="23">
+               [nzNotFoundContent]="'Empty'" nzPlaceHolder="Please select"  nz-col [nzSpan]="23">
       <nz-option *ngFor="let option of imeis" [nzLabel]="option.imei" [nzValue]="option.imei">
       </nz-option>
       <nz-option [nzLabel]="'disabled'" [nzDisabled]="true" [nzValue]="'disabled'" *ngIf="loading">
@@ -16,7 +16,7 @@
       </nz-option>
     </nz-select>
   </div>
-  <nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">
+  <!--<nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">-->
     <echarts-ng2 [option]="chartOption"></echarts-ng2>
-  </nz-spin>
+  <!--</nz-spin>-->
 </nz-content>

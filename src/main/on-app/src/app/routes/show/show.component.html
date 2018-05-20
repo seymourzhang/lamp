@@ -7,7 +7,7 @@
     <div nz-row>
       <p nz-col [nzSpan]="1" style="position: relative; top: -2px; font-size: 20px;">imei:</p>
       <nz-select style="width: 170px;" [(ngModel)]="imei" (nzScrollToBottom)="scrollToBottom()" (nzOpenChange)="initTableData(imei)"
-                 [nzNotFoundContent]="'Empty'" [nzPlaceHolder]="'Please select'"  nz-col [nzSpan]="23">
+                 [nzNotFoundContent]="'Empty'" nzPlaceHolder="Please select"  nz-col [nzSpan]="23">
         <nz-option *ngFor="let option of imeis" [nzLabel]="option.imei" [nzValue]="option.imei">
         </nz-option>
         <nz-option [nzLabel]="'disabled'" [nzDisabled]="true" [nzValue]="'disabled'" *ngIf="loading">
@@ -17,37 +17,36 @@
         </nz-option>
       </nz-select>
     </div>
-    <div style="padding:24px; background: #fff; min-height: 682px; position: relative;">
-      <nz-table #nzTable [nzDataSource]="data" [nzPageSize]="50" [nzScroll]="{ x: 1100, y: 525 }">
-        <ng-template #nzFixedHeader>
-          <thead nz-thead>
+      <nz-table #nzTable [nzData]="data" [nzPageSize]="15" [nzScroll]="{x:'1500px', y: '525px'}" style="text-align: center;">
+        <thead>
           <tr>
-            <th nz-th [nzWidth]="'10%'"><span>Id</span></th>
-            <th nz-th [nzWidth]="'15%'"><span>Imei</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T1</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T2</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T3</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T4</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T5</span></th>
-            <th nz-th [nzWidth]="'10%'"><span>T6</span></th>
-            <th nz-th [nzWidth]="'15%'"><span>DateTime</span></th>
+            <th style="text-align: center;"  nzWidth="150px" nzLeft="0px">Id</th>
+            <th style="text-align: center;"  nzWidth="150px" nzLeft="150px">Imei</th>
+            <th style="text-align: center;" >T1</th>
+            <th style="text-align: center;" >T2</th>
+            <th style="text-align: center;" >T3</th>
+            <th style="text-align: center;" >T4</th>
+            <th style="text-align: center;" >T5</th>
+            <th style="text-align: center;" >T6</th>
+            <th style="text-align: center;"  nzWidth="200px" nzRight="0px">DateTime</th>
           </tr>
-          </thead>
-        </ng-template>
-        <tbody nz-tbody>
-        <tr nz-tbody-tr *ngFor="let data of nzTable.data">
-          <td nz-td>{{data.id}}</td>
-          <td nz-td>{{data.imei}}</td>
-          <td nz-td>{{data.t1}}</td>
-          <td nz-td>{{data.t2}}</td>
-          <td nz-td>{{data.t3}}</td>
-          <td nz-td>{{data.t4}}</td>
-          <td nz-td>{{data.t5}}</td>
-          <td nz-td>{{data.t6}}</td>
-          <td nz-td>{{data.collectionDatetime}}</td>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of nzTable.data" style="text-align: center;">
+          <td nzLeft="0px">{{data.id}}</td>
+          <td nzLeft="150px">{{data.imei}}</td>
+          <td>{{data.t1}}</td>
+          <td>{{data.t2}}</td>
+          <td>{{data.t3}}</td>
+          <td>{{data.t4}}</td>
+          <td>{{data.t5}}</td>
+          <td>{{data.t6}}</td>
+          <td nzRight="0px">{{data.collectionDatetime}}</td>
+          <!--<td nzRight="0px">
+            <a>action</a>
+          </td>-->
         </tr>
         </tbody>
       </nz-table>
-    </div>
   </nz-content>
 </nz-spin>

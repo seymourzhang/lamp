@@ -15,8 +15,8 @@ import {IdentityComponent} from "./routes/user/identity/identity.component";
 import {AnalyseComponent} from "./routes/analyse/analyse.component";
 import {NgxEchartsModule} from 'ngx-echarts';
 import {EchartsNg2Module} from "echarts-ng2";
-import {NoopAnimationsModule} from "@angular/platform-browser/animations";
-import {NzSelectModule} from "ng-zorro-antd";
+import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
+import {NgZorroAntdModule} from "ng-zorro-antd";
 
 
 @NgModule({
@@ -30,6 +30,7 @@ import {NzSelectModule} from "ng-zorro-antd";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     ShareModule,
     ReactiveFormsModule,
@@ -37,7 +38,8 @@ import {NzSelectModule} from "ng-zorro-antd";
     NgxEchartsModule,
     EchartsNg2Module,
     NoopAnimationsModule,
-    FormsModule
+    FormsModule,
+    NgZorroAntdModule.forRoot()
   ],
   providers: [HttpService],
   bootstrap: [AppComponent]

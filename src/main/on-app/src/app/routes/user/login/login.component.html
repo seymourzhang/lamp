@@ -1,8 +1,8 @@
 <div [style.background-image]="'url(' + valImageBackgroundUrl + ')'" style="width: 100%; height: 100%;background-size:cover; background-repeat:no-repeat;-moz-background-size:cover;">
-  <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="_submitForm()">
+  <!--<form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="_submitForm()">
     <div nz-form-item>
       <div nz-form-control>
-        <nz-input formControlName="userName" [nzPlaceHolder]="'Username'" [nzSize]="'large'">
+        <nz-input formControlName="userName" nzPlaceHolder="'Username'" nzSize="'large'">
           <ng-template #prefix>
             <i class="anticon anticon-onAUser"></i>
           </ng-template>
@@ -12,7 +12,7 @@
     </div>
     <div nz-form-item>
       <div nz-form-control>
-        <nz-input formControlName="password" [nzType]="'password'" [nzPlaceHolder]="'Password'" [nzSize]="'large'">
+        <nz-input formControlName="password" [nzType]="'password'" nzPlaceHolder="'Password'" nzSize="'large'">
           <ng-template #prefix>
             <i class="anticon anticon-lock"></i>
           </ng-template>
@@ -27,12 +27,44 @@
         </label>
         <a class="login-form-forgot" class="login-form-forgot">Forgot password</a>
         <nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">
-          <button nz-button class="login-form-button" [nzType]="'primary'" [nzSize]="'large'">Log in</button>
+          <button nz-button class="login-form-button" [nzType]="'primary'" nzSize="'large'">Log in</button>
         </nz-spin>
         Or
         <a href="">register now!</a>
       </div>
     </div>
+  </form>-->
+
+  <form nz-form [formGroup]="validateForm" class="login-form" (ngSubmit)="_submitForm()">
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group nzPrefixIcon="anticon anticon-user">
+          <input type="text" nz-input formControlName="userName" placeholder="Username">
+        </nz-input-group>
+        <nz-form-explain *ngIf="validateForm.get('userName').dirty && validateForm.get('userName').errors">Please input your username!</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group nzPrefixIcon="anticon anticon-lock">
+          <input type="password" nz-input formControlName="password" placeholder="Password">
+        </nz-input-group>
+        <nz-form-explain *ngIf="validateForm.get('password').dirty && validateForm.get('password').errors">Please input your Password!</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <label nz-checkbox formControlName="remember">
+          <span>Remember me</span>
+        </label>
+        <a class="login-form-forgot" class="login-form-forgot">Forgot password</a>
+        <nz-spin [nzTip]="'loading...'" [nzSpinning]="_isSpinning">
+          <button nz-button class="login-form-button" [nzType]="'primary'">Log in</button>
+        </nz-spin>
+        Or
+        <a href="">register now!</a>
+      </nz-form-control>
+    </nz-form-item>
   </form>
 </div>
 <router-outlet></router-outlet>
