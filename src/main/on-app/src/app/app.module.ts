@@ -17,6 +17,9 @@ import {NgxEchartsModule} from 'ngx-echarts';
 import {EchartsNg2Module} from "echarts-ng2";
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import {NgZorroAntdModule} from "ng-zorro-antd";
+import { MygirlComponent } from './routes/mygirl/mygirl.component';
+import {DatePipe} from "@angular/common";
+import {ClipboardModule} from "ngx-clipboard/dist";
 
 
 @NgModule({
@@ -26,7 +29,8 @@ import {NgZorroAntdModule} from "ng-zorro-antd";
     HomeComponent,
     ShowComponent,
     IdentityComponent,
-    AnalyseComponent
+    AnalyseComponent,
+    MygirlComponent
   ],
   imports: [
     BrowserModule,
@@ -39,9 +43,10 @@ import {NgZorroAntdModule} from "ng-zorro-antd";
     EchartsNg2Module,
     NoopAnimationsModule,
     FormsModule,
+    ClipboardModule,
     NgZorroAntdModule.forRoot()
   ],
-  providers: [HttpService],
+  providers: [HttpService,DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

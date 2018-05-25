@@ -34,6 +34,7 @@ public class SignInController extends BaseAction {
         String userCode = pd.get("user_name").toString();
         String password = pd.get("user_password").toString();
         OnAUser verify = onAUserService.findByName(userCode);
+        session.setAttribute("user", verify);
         if (verify == null) {
             json.put("Result", "Fail");
             json.put("Error", "用户不存在！");

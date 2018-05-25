@@ -12,6 +12,7 @@ import {ShareModule} from "../share/share.module";
 import { IdentityComponent } from './user/identity/identity.component';
 import { AnalyseComponent } from './analyse/analyse.component';
 import {NgZorroAntdModule} from "ng-zorro-antd";
+import { MygirlComponent } from './mygirl/mygirl.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,12 @@ import {NgZorroAntdModule} from "ng-zorro-antd";
     ShareModule,
     NgZorroAntdModule
   ],
-  declarations: [ShowComponent, IdentityComponent, AnalyseComponent],
+  declarations: [
+    ShowComponent,
+    IdentityComponent,
+    AnalyseComponent,
+    MygirlComponent
+  ],
   providers: [
     HttpService
   ]

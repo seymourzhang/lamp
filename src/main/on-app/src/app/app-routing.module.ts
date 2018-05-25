@@ -6,6 +6,7 @@ import {ShowComponent} from "./routes/show/show.component";
 import {Identifiers} from "@angular/compiler";
 import {IdentityComponent} from "./routes/user/identity/identity.component";
 import {AnalyseComponent} from "./routes/analyse/analyse.component";
+import {MygirlComponent} from "./routes/mygirl/mygirl.component";
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,7 +18,8 @@ const routes: Routes = [
       { path: '', redirectTo: 'show', pathMatch: 'full' },
       { path: 'show', component: ShowComponent },
       { path: 'identity', component: IdentityComponent },
-      { path: 'analyse', component: AnalyseComponent }
+      { path: 'analyse', component: AnalyseComponent },
+      { path: 'cherry', component: MygirlComponent }
     ]
   }
 ];

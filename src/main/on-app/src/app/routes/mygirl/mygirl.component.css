@@ -1,0 +1,11 @@
+.editable-add-btn {
+  margin-bottom: 8px;
+}
+
+.editable-row-operations a {
+  margin-right: 8px;
+}
+
+:host ::ng-deep .ant-calendar-picker {
+  margin: 0 8px 12px 0;
+}

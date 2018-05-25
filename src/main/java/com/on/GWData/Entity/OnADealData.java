@@ -1,10 +1,12 @@
 package com.on.GWData.Entity;
 
+import com.on.util.common.PubFun;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="on_a_deal_data", catalog="pro_lamp")
+@Table(name="on_a_deal_data", catalog= "pro_lamp")
 public class OnADealData {
     private static final long serialVersionUID = 1L;
 

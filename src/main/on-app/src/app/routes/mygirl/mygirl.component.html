@@ -1,0 +1,296 @@
+<nz-content style="margin:0 16px;">
+  <!--<button nz-button (click)="addRow()" class="editable-add-btn">Add</button>-->
+  <button nz-button nzType="primary" (click)="showModal()">
+    <span>新增</span>
+  </button>
+  <nz-modal [(nzVisible)]="isVisible" nzTitle="按格式(姓名,地址,电话,订单号,来源,备注)顺序填写！" (nzOnCancel)="handleCancel()" (nzOnOk)="addRow()" [nzOkLoading]="isOkLoading">
+    <textarea row="6" nz-input [(ngModel)]="inputValue"></textarea>
+  </nz-modal>
+  <br>
+  <br>
+  <nz-table #editRowTable nzBordered [nzData]="dataSet" [nzPageSize]="15" [nzScroll]="{x:'3000px', y: '525px'}" [nzSize]="size">
+    <thead>
+    <tr>
+      <th nzWidth="1%">序号</th>
+      <th nzWidth="2%">姓名</th>
+      <th nzWidth="2%">地址</th>
+      <th nzWidth="2%">电话</th>
+      <th nzWidth="3%">品种</th>
+      <th nzWidth="2%">单价</th>
+      <th nzWidth="2%">数量</th>
+      <th nzWidth="2%">快递费</th>
+      <th nzWidth="2%">包装费</th>
+      <th nzWidth="2%">保温箱</th>
+      <th nzWidth="2%">总价</th>
+      <th nzWidth="2%">减价</th>
+      <th nzWidth="2%">实收</th>
+      <th nzWidth="2%">实际支出</th>
+      <th nzWidth="2%">利润</th>
+      <th nzWidth="3%">发货日期</th>
+      <th nzWidth="2%">订单号</th>
+      <th nzWidth="3%">收货日期</th>
+      <th nzWidth="2%">来源</th>
+      <th nzWidth="8%">备注</th>
+      <th nzWidth="3%" nzRight="0%">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of editRowTable.data">
+      <td>{{data.id}}</td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.name}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.name">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.address}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.address">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.phoneNo}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.phoneNo">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.varietyName}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <!--<input type="text" nz-input [(ngModel)]="editCache[data.id].data.variety">-->
+              <nz-select style="width: 80%;" nzSize="small" nzPlaceHolder="品种" [(ngModel)]="editCache[data.id].data.varietyId">
+                <nz-option *ngFor="let option of varieties" [nzLabel]="option.codeName" [nzValue]="option.codeId">
+                </nz-option>
+              </nz-select>
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.price}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.price">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.num}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.num">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.transCast}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.transCast">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.packageCast}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.packageCast">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.incubatorCast}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.incubatorCast">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.totalCast}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.totalCast">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.subPrice}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.subPrice">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.actualIn}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.actualIn">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.actualIn}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.actualOut">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.actualIn}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.benefits">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.deliverDate}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <!--<input type="text" nz-input [(ngModel)]="editCache[data.id].data.deliverDate">-->
+              <nz-date-picker [(ngModel)]="editCache[data.id].data.deliverDate" nzShowTime></nz-date-picker>
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.transNo}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.transNo">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.acceptDate}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <!--<input type="text" nz-input [(ngModel)]="editCache[data.id].data.acceptDate">-->
+              <nz-date-picker [(ngModel)]="editCache[data.id].data.acceptDate" nzShowTime></nz-date-picker>
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.originPlace}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.originPlace">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="editable-cell">
+          <div class="editable-cell-text-wrapper">
+            <ng-container *ngIf="!editCache[data.id].edit">
+              {{data.tips}}
+            </ng-container>
+            <ng-container *ngIf="editCache[data.id].edit">
+              <input type="text" nz-input [(ngModel)]="editCache[data.id].data.tips">
+            </ng-container>
+          </div>
+        </div>
+      </td>
+      <td nzRight="0%">
+        <div class="editable-row-operations">
+          <ng-container *ngIf="!editCache[data.id].edit">
+            <a (click)="startEdit(data.id)"><i class="anticon anticon-edit"></i></a>
+          </ng-container>
+          <ng-container *ngIf="editCache[data.id].edit">
+            <!--<a (click)="saveEdit(data.id)">Save</a>-->
+            <i class="anticon anticon-check" (click)="saveEdit(data.id)"></i>
+            <nz-divider nzType="vertical"></nz-divider>
+            <nz-popconfirm [nzTitle]="'Sure to cancel?'" (nzOnConfirm)="cancelEdit(data.id)">
+              <a nz-popconfirm><i class="anticon anticon-close"></i></a>
+            </nz-popconfirm>
+            <nz-divider nzType="vertical"></nz-divider>
+            <nz-popconfirm [nzTitle]="'Sure to delete?'" (nzOnConfirm)="deleteEdit(data.id)">
+              <a nz-popconfirm><i class="anticon anticon-delete"></i></a>
+            </nz-popconfirm>
+          </ng-container>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-content>
