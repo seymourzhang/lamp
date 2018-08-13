@@ -1,6 +1,7 @@
 package com.on.util.action;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.api.Session;
 import com.on.util.common.*;
 import org.apache.commons.io.FileUtils;
@@ -23,13 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -54,21 +53,23 @@ public class BaseAction {
 	/**
 	 * 得到PageData
 	 */
-	public PageData getPageData(){
-		PageData pd = new PageData(this.getRequest());
-		if (this.getRequest().getRequestURL().indexOf("Mobile/") > 0){
-		} else {
-			/*String fineReportPath = PubFun.getPropertyValue("FineReport.Path");
-			String fineReportPathPN = fineReportPath.substring(fineReportPath.lastIndexOf("/"));
-			String changeLanguage = PubFun.getPropertyValue("System.Change.Language");
-			pd.put("report_ip", PubFun.getPropertyValue("Report.Ip"));
-			pd.put("report_port", PubFun.getPropertyValue("Report.Port"));
-			pd.put("system_name", PubFun.getPropertyValue("System.Name"));
-			pd.put("system_en_name", PubFun.getPropertyValue("System.EnName"));
-			pd.put("data_from_properties", PubFun.getPropertyValue("System.DataFromProperties"));
-			pd.put("FineReport_Path", fineReportPath);
-			pd.put("FineReport_Path_PN", fineReportPathPN);
-			pd.put("changeLanguage", changeLanguage);*/
+	public PageData getPageData() throws Exception{
+		PageData pd = new PageData();
+		String methodMode = this.getRequest().getMethod();
+		if ("POST".equals(methodMode)) {
+
+			BufferedReader br = new BufferedReader(new InputStreamReader((ServletInputStream) this.getRequest().getInputStream(), "utf-8"));
+			StringBuffer sb = new StringBuffer("");
+			String temp;
+			while ((temp = br.readLine()) != null) {
+				sb.append(temp);
+			}
+			br.close();
+			String params = sb.toString();
+			JSONObject jParams = JSONObject.parseObject(params);
+			pd.putAll(jParams);
+		} else if ("GET".equals(methodMode)) {
+			pd = new PageData(this.getRequest());
 		}
 		return pd;
 	}

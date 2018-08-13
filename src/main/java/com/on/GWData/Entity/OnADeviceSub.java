@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="on_a_device_sub", catalog="pro_lamp")
+@Table(name="on_a_device_sub", catalog=  "pro_lamp")
 public class OnADeviceSub {
     private static final long serialVersionUID = 1L;
 

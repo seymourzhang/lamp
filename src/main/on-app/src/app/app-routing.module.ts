@@ -7,9 +7,11 @@ import {Identifiers} from "@angular/compiler";
 import {IdentityComponent} from "./routes/user/identity/identity.component";
 import {AnalyseComponent} from "./routes/analyse/analyse.component";
 import {MygirlComponent} from "./routes/mygirl/mygirl.component";
+import {IndexComponent} from "./routes/index/index.component";
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'index', pathMatch: 'full' },
+  { path: 'index', component: IndexComponent },
   { path: 'login', component: LoginComponent },
   {
     path: 'home',

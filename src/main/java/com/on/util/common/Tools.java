@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -341,6 +342,18 @@ public class Tools {
 		Matcher matcher = pattern.matcher(tmpPath);
 		flag = matcher.matches();
 		return (flag.booleanValue())?path:null;
+	}
+
+	public static String getOrderIdByUUId() {
+		int machineId = 1;//最大支持1-9个集群机器部署
+		int hashCodeV = UUID.randomUUID().toString().hashCode();
+		if(hashCodeV < 0) {//有可能是负数
+			hashCodeV = - hashCodeV;
+		}
+		// 0 代表前面补充0
+		// 4 代表长度为4
+		// d 代表参数为正数型
+		return machineId + String.format("%015d", hashCodeV);
 	}
 
 //	public static void main(String[] args) {

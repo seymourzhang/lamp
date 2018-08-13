@@ -20,6 +20,7 @@ import {NgZorroAntdModule} from "ng-zorro-antd";
 import { MygirlComponent } from './routes/mygirl/mygirl.component';
 import {DatePipe} from "@angular/common";
 import {ClipboardModule} from "ngx-clipboard/dist";
+import {IndexComponent} from "./routes/index/index.component";
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import {ClipboardModule} from "ngx-clipboard/dist";
     ShowComponent,
     IdentityComponent,
     AnalyseComponent,
-    MygirlComponent
+    MygirlComponent,
+    IndexComponent
   ],
   imports: [
     BrowserModule,

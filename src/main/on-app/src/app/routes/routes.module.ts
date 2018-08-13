@@ -13,6 +13,7 @@ import { IdentityComponent } from './user/identity/identity.component';
 import { AnalyseComponent } from './analyse/analyse.component';
 import {NgZorroAntdModule} from "ng-zorro-antd";
 import { MygirlComponent } from './mygirl/mygirl.component';
+import { IndexComponent } from './index/index.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,8 @@ import { MygirlComponent } from './mygirl/mygirl.component';
     ShowComponent,
     IdentityComponent,
     AnalyseComponent,
-    MygirlComponent
+    MygirlComponent,
+    IndexComponent
   ],
   providers: [
     HttpService
