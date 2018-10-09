@@ -2,10 +2,11 @@ package com.on.wechat.action;
 
 import com.alibaba.fastjson.JSONObject;
 import com.on.util.action.BaseAction;
-import com.on.util.common.PageData;
+import com.on.util.common.*;
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
 import com.on.wechat.service.WechatUserService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -21,9 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
 
 @RestController
 @SpringBootApplication
@@ -112,7 +112,7 @@ public class WechatUserController extends BaseAction {
             a.put("address", wa.getAddress());
             tempL.add(a);
         }
-        if (lwa.size() > this.limit ) {
+        if (lwa.size() > this.limit) {
             paginate.put("hasNext", true);
             paginate.put("next", lwa.get(this.limit + 1));
             this.limit += pd.getInteger("limit");
@@ -203,5 +203,17 @@ public class WechatUserController extends BaseAction {
         }
         super.writeJson(json, response);
     }
+
+    @RequestMapping("/addressDelete")
+    public void addressDelete(HttpServletResponse response) throws Exception {
+        JSONObject json = new JSONObject();
+        PageData pd = this.getPageData();
+        Long addressId = Long.parseLong(pd.getString("id"));
+        wechatUserService.addressDelete(addressId);
+        json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
+        super.writeJson(json, response);
+    }
+
 }
+
 

@@ -20,4 +20,6 @@ public interface WechatUserService {
     void updateDefaultStatus(Long id, Long userId);
 
     WechatAddress findDef();
+
+    void addressDelete(Long id);
 }

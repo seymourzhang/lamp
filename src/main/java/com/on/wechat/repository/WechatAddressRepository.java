@@ -14,14 +14,16 @@ import java.util.List;
 @Repository
 public interface WechatAddressRepository extends JpaRepository<WechatAddress, Long> {
 
-    @Query(value = "select * from wechat_address where user_id = :userId ", nativeQuery = true)
+    @Query(value = "select * from wechat_address where user_id = :userId ORDER BY id DESC ", nativeQuery = true)
     List<WechatAddress> findByUserId(@Param("userId") String userId);
 
     @Transactional
     @Modifying
-    @Query(value = "update wechat_address set is_def = (" +
-            "case when id = :id then 1 else 0 end" +
-            ") where user_id = :userId", nativeQuery = true)
+    @Query(value = "update wechat_address c " +
+            "           inner join (select if(exists(select 1 from wechat_address a where a.id = :id), :id, (select max(b.id) from wechat_address b where b.user_id = :userId)) check_id) d " +
+            "       set c.is_def = ( " +
+            "            case when c.id = d.check_id then 1 else 0 end " +
+            "            ) where c.user_id = :userId", nativeQuery = true)
     void updateDefaultStatus(@Param("id") Long id, @Param("userId") Long userId);
 
 

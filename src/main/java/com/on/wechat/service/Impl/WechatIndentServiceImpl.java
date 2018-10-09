@@ -108,7 +108,8 @@ public class WechatIndentServiceImpl implements WechatIndentService {
                 "  user_id, " +
                 "  operation_date " +
                 "from wechat_indent_transaction wit " +
-                "where wit.user_id = ?1" ;
+                "where wit.user_id = ?1 " +
+                "order by operation_date desc" ;
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, userId);
         //转换为Map集合

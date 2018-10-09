@@ -44,12 +44,13 @@ public class WechatCartController extends BaseAction {
         PageData pd = this.getPageData();
         JSONObject json = new JSONObject();
         JSONObject pdParam = (JSONObject) pd.get("goods");
+        String thumbUrl = pdParam.getString("thumbUrl");
         WechatShoppingCart weCart = new WechatShoppingCart();
         weCart.setGoodsId(pdParam.getString("goodsId"));
         weCart.setGoodsName(pdParam.getString("goodsName"));
         weCart.setGoodsPrice(pdParam.getBigDecimal("goodsPrice"));
         weCart.setModifyDatetime(new Date());
-        weCart.setThumbUrl(pdParam.getString("thumbUrl"));
+        weCart.setThumbUrl(thumbUrl.substring(3, thumbUrl.length()));
         weCart.setOperationDate(new Date());
         weCart.setUserId(pdParam.getString("userId"));
         weCart.setAmount(Long.parseLong(pdParam.getString("amount")));
