@@ -186,7 +186,7 @@ public class WechatIndentController extends BaseAction {
         //货币类型
         paraMap.put("fee_type", "CNY");
         //交易金额
-        paraMap.put("total_fee", "101");
+        paraMap.put("total_fee", "11");
         //终端IP
         paraMap.put("spbill_create_ip", "127.0.0.0");
         //通知地址
@@ -203,7 +203,7 @@ public class WechatIndentController extends BaseAction {
         try {
             Map<String, String> resp = wxPay.unifiedOrder(paraMap);
             Long timeStamp = System.currentTimeMillis() / 1000;
-            if ("SUCCESS".equals(resp.get("return_code"))) {
+            if ("SUCCESS".equals(resp.get("result_code"))) {
                 resultJson.put("prepayId", resp.get("prepay_id"));
                 resultJson.put("returnCode", "SUCCESS");
                 resultJson.put("mchId", resp.get("mch_id"));
@@ -246,9 +246,14 @@ public class WechatIndentController extends BaseAction {
 
         MineConfig mineConfig = new MineConfig();
         mineConfig.setKey("1qaz2wsx3edc4rfvseymourzhanghaha");
-        WXPay wxPay = new WXPay(mineConfig, true, true);
+        WXPay wxPay = new WXPay(mineConfig);
         try {
             Map<String, String> resp = wxPay.closeOrder(paraMap);
+            if ("SUCCESS".equals(resp.get("result_code").toString())) {
+
+            } else {
+                mLogger.info("删除失败！");
+            }
             System.out.println(resp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -257,11 +262,33 @@ public class WechatIndentController extends BaseAction {
         super.writeJson(resultJson, response);
     }
 
+    @RequestMapping("/modifyIndent")
+    public void modifyIndent(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        PageData pd = this.getPageData();
+        JSONObject json = new JSONObject();
+        String indentId = pd.getString("indent_id");
+        String indentType = pd.getString("indent_type");
+        String resultIndent = pd.getString("indent_result");
+
+        WechatIndentTransaction wit = wechatIndentService.findById(Long.parseLong(indentId));
+        wit.setOperationType(indentType);
+        if ("Success".equals(resultIndent)) {
+            pd.put("wit", wit);
+            wechatIndentService.modifyIndentStatus(pd);
+            json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
+        }
+    }
+
     @RequestMapping("/notifyResult")
     public void notifyResult(HttpServletRequest request, HttpServletResponse response) throws Exception {
 //        PageData pd = this.getPageData();
         JSONObject json = new JSONObject();
         mLogger.info("notifyResult:");
+        mLogger.info("+++++++");
+        mLogger.info("+++++++");
+        mLogger.info("+++++++");
+        mLogger.info("+++++++");
+        mLogger.info("+++++++");
         mLogger.info(request);
         super.writeJson(json, response);
     }

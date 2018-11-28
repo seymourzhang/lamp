@@ -47,8 +47,8 @@ public class WechatUserServiceImpl implements WechatUserService{
         wechatAddressRepository.updateDefaultStatus(id, userId);
     }
 
-    public WechatAddress findDef() {
-        return wechatAddressRepository.findDef();
+    public WechatAddress findDef(String userId) {
+        return wechatAddressRepository.findDef(userId);
     }
 
     public void addressDelete(Long id) {

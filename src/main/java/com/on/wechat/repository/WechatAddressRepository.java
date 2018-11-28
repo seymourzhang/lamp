@@ -27,6 +27,6 @@ public interface WechatAddressRepository extends JpaRepository<WechatAddress, Lo
     void updateDefaultStatus(@Param("id") Long id, @Param("userId") Long userId);
 
 
-    @Query(value = "select w from WechatAddress w where w.isDef = 1")
-    WechatAddress findDef();
+    @Query(value = "select w from WechatAddress w where w.isDef = 1 and w.userId = :userId")
+    WechatAddress findDef(@Param("userId") String userId);
 }

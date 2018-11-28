@@ -145,4 +145,31 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }
+
+    public WechatIndentTransaction findById(@Param("indentId") Long id) {
+        return wechatIndentTransactionRepository.findOne(id);
+    }
+
+    public void modifyIndentStatus(PageData pd) {
+        WechatIndentTransaction wit = (WechatIndentTransaction) pd.get("wit");
+        String operationType = wit.getOperationType();
+        if ("05".equals(operationType) || "06".equals(operationType) || "07".equals(operationType)) {
+            wechatIndentTransactionRepository.delete(wit.getId());
+        } else {
+            wit = wechatIndentTransactionRepository.save(wit);
+        }
+        Long indentId = wit.getId();
+
+        Date now = new Date();
+        WechatIndentChange wic = new WechatIndentChange();
+        wic.setIndentId(indentId);
+        wic.setAddressId(wit.getAddressId());
+        wic.setMoneySum(wit.getMoneySum());
+        wic.setUserId(wit.getUserId());
+        wic.setOperationType(wit.getOperationType());
+        wic.setModifyDatetime(now);
+        wic.setOperationDate(now);
+        wechatIndentChangeRepository.save(wic);
+    }
+
 }

@@ -17,4 +17,9 @@ public interface WechatIndentService {
     List<HashMap<String, Object>> queryTransactions(PageData pd);
 
     List<PageData> findIndentInfo(Long indentId);
+
+    WechatIndentTransaction findById(Long id);
+
+    void modifyIndentStatus(PageData pd);
+
 }

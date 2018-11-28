@@ -19,7 +19,7 @@ public interface WechatUserService {
 
     void updateDefaultStatus(Long id, Long userId);
 
-    WechatAddress findDef();
+    WechatAddress findDef(String userId);
 
     void addressDelete(Long id);
 }

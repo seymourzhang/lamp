@@ -194,7 +194,9 @@ public class WechatUserController extends BaseAction {
     @RequestMapping("/addressQueryDef")
     public void addressQueryDef(HttpServletResponse response) throws Exception {
         JSONObject json = new JSONObject();
-        WechatAddress wa = wechatUserService.findDef();
+        PageData pd = this.getPageData();
+        String userId = pd.getString("userId");
+        WechatAddress wa = wechatUserService.findDef(userId);
         if (wa != null) {
             json.put("data", wa);
             json.put("meta", JSONObject.parseObject("{'code': '0','message': ''}"));
