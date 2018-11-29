@@ -45,17 +45,35 @@ public class WechatCartController extends BaseAction {
         JSONObject json = new JSONObject();
         JSONObject pdParam = (JSONObject) pd.get("goods");
         String thumbUrl = pdParam.getString("thumbUrl");
+        int userId = pdParam.getInteger("userId");
+        String goodsId = pdParam.getString("goodsId");
+        Long amount = Long.parseLong(pdParam.getString("amount"));
+//        BigDecimal total = new BigDecimal(pdParam.getString("total"));
+        BigDecimal goodPrice = pdParam.getBigDecimal("goodsPrice");
+        List<WechatShoppingCart> lwsc = wechatCartService.findByUserId(userId);
+        for (WechatShoppingCart cart : lwsc) {
+            String goodsIdPre = cart.getGoodsId();
+            if (goodsId.equals(goodsIdPre)) {
+                cart.setModifyDatetime(new Date());
+                cart.setAmount(cart.getAmount() + amount);
+                cart.setTotalAmount(goodPrice.multiply(new BigDecimal(pdParam.getString("amount"))).add(cart.getTotalAmount()));
+                wechatCartService.save(cart);
+                json.put("meta", JSONObject.parseObject("{'code': '0','message': '保存成功'}"));
+                super.writeJson(json, response);
+                return;
+            }
+        }
         WechatShoppingCart weCart = new WechatShoppingCart();
-        weCart.setGoodsId(pdParam.getString("goodsId"));
+        weCart.setGoodsId(goodsId);
         weCart.setGoodsName(pdParam.getString("goodsName"));
-        weCart.setGoodsPrice(pdParam.getBigDecimal("goodsPrice"));
+        weCart.setGoodsPrice(goodPrice);
         weCart.setModifyDatetime(new Date());
-        weCart.setThumbUrl(thumbUrl.substring(3, thumbUrl.length()));
+        weCart.setThumbUrl(thumbUrl);
         weCart.setOperationDate(new Date());
         weCart.setUserId(pdParam.getString("userId"));
-        weCart.setAmount(Long.parseLong(pdParam.getString("amount")));
-        weCart.setTotal(new BigDecimal(pdParam.getString("total")));
-        weCart.setTotalAmount(new BigDecimal(pdParam.getString("total")).multiply(new BigDecimal(pdParam.getString("amount"))));
+        weCart.setAmount(amount);
+//        weCart.setTotal(new BigDecimal(pdParam.getString("total")));
+        weCart.setTotalAmount(goodPrice.multiply(new BigDecimal(amount)));
         wechatCartService.save(weCart);
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '保存成功'}"));
         super.writeJson(json, response);
@@ -75,7 +93,7 @@ public class WechatCartController extends BaseAction {
         JSONObject json = new JSONObject();
         WechatShoppingCart temp = wechatCartService.findById(Long.parseLong(pd.getString("cartId")));
         temp.setAmount(Long.parseLong(pd.getString("amount")));
-        temp.setTotal(new BigDecimal(pd.getString("amount")).multiply(temp.getGoodsPrice()));
+        temp.setTotalAmount(new BigDecimal(pd.getString("amount")).multiply(temp.getGoodsPrice()));
         temp.setModifyDatetime(new Date());
         temp = wechatCartService.save(temp);
         PageData wsc = new PageData();
@@ -87,6 +105,7 @@ public class WechatCartController extends BaseAction {
         wsc.put("thumbUrl", temp.getThumbUrl());
         wsc.put("amount", temp.getAmount());
         wsc.put("total", temp.getTotal());
+        wsc.put("totalAmount", temp.getTotalAmount().divide(new BigDecimal(1), 2, BigDecimal.ROUND_HALF_UP));
         json.put("data", wsc);
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
         super.writeJson(json, response);

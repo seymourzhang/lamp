@@ -63,7 +63,7 @@ public class WechatIndentController extends BaseAction {
 
         WechatIndentTransaction wit = new WechatIndentTransaction();
         wit.setUserId(userId);
-        wit.setMoneySum(new BigDecimal(totalAmount));
+        wit.setMoneySum(new BigDecimal(totalAmount).divide(new BigDecimal(1), 2, BigDecimal.ROUND_HALF_UP));
         wit.setIndentCode(indentCode);
         wit.setAddressId(addressId);
         wit.setOperationType("01");
@@ -186,7 +186,7 @@ public class WechatIndentController extends BaseAction {
         //货币类型
         paraMap.put("fee_type", "CNY");
         //交易金额
-        paraMap.put("total_fee", "11");
+        paraMap.put("total_fee", new BigDecimal(amount).multiply(new BigDecimal(100)).divide(new BigDecimal(1), 0, BigDecimal.ROUND_UP).toString());
         //终端IP
         paraMap.put("spbill_create_ip", "127.0.0.0");
         //通知地址
