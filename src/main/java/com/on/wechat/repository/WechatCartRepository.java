@@ -15,6 +15,11 @@ public interface WechatCartRepository extends JpaRepository<WechatShoppingCart, 
     @Query(value = "select * from wechat_shopping_cart where user_id = :userId ", nativeQuery = true)
     List<WechatShoppingCart> findByUserId(@Param("userId") int userId);
 
+    @Query(value = "select * " +
+                   "from wechat_shopping_cart " +
+                   "where user_id = :userId and category_type = :cType ", nativeQuery = true)
+    List<WechatShoppingCart> findByUserIdAndType(@Param("userId") int userId, @Param("cType") String cType);
+
     @Modifying
     @Query(value = "delete from wechat_shopping_cart where user_id = :userId", nativeQuery = true)
     void deleteAllByUserId(@Param("userId") int userId);

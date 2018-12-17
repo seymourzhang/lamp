@@ -36,17 +36,41 @@ public class WechatIndentServiceImpl implements WechatIndentService {
     @Autowired
     private WechatCartRepository wechatCartRepository;
 
+    @Autowired
+    private WechatCodeRepository wechatCodeRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<WechatGoods> findGoods(PageData pd) {
-        List<WechatGoods> lwg = new ArrayList<>();
+    public List<Map<String, Object>> findGoods(PageData pd) {
+        List<Map<String, Object>> lwg = new ArrayList<>();
+        String sql = "select" +
+                    "  wg.id, " +
+                    "  wg.goods_name goodsName, " +
+                    "  wg.goods_price goodsPrice, " +
+                    "  wg.goods_status goodsStaus, " +
+                    "  wg.goods_type goodsType, " +
+                    "  wg.modify_datetime modifyDatetime, " +
+                    "  wg.thumb_url thumbUrl, " +
+                    "  wc.we_bak2 total," +
+                    "  wg.inventory_amount inventoryAmount " +
+                    "from wechat_goods wg " +
+                    "  left join wechat_code wc on wc.id = wg.goods_type and we_code_type = 'CATEGORY_TYPE' " +
+                    "where 1 = 1";
         if (pd.get("goods_id") != null) {
-            lwg = wechatGoodsRepository.findById(pd.getInteger("goods_id"));
-        } else {
-            lwg = wechatGoodsRepository.findAll();
+            sql += " and wg.id = ?1";
         }
-        return lwg;
+        Query query = entityManager.createNativeQuery(sql);
+        if (pd.get("goods_id") != null) {
+            query.setParameter(1, pd.get("goods_id"));
+        }
+        //转换为Map集合
+        query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
+    public List<WechatCode> findCType(PageData pd) {
+        return wechatCodeRepository.findByCodeType(pd.getString("codeType"));
     }
 
     public WechatIndentTransaction dealTransaction(PageData pd) {
@@ -122,6 +146,7 @@ public class WechatIndentServiceImpl implements WechatIndentService {
                 "  wit.id indent_id, " +
                 "  wit.address_id, " +
                 "  wit.money_sum totalAmount, " +
+                "  wit.operation_type operationType, " +
                 "  wit.indent_code indentCode, " +
                 "  wa.name recipientName, " +
                 "  wa.gender recipientGender, " +

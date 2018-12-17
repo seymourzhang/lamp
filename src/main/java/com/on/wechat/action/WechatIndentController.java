@@ -44,12 +44,14 @@ public class WechatIndentController extends BaseAction {
         PageData pd = this.getPageData();
 //        int userId = pd.getInteger("user_id");
         JSONObject json = new JSONObject();
-        List<WechatGoods> lwsc = wechatIndentService.findGoods(pd);
+        List<Map<String, Object>> lwsc = wechatIndentService.findGoods(pd);
         if (pd.get("goods_id") != null) {
             json.put("data", lwsc.get(0));
         } else {
             json.put("data", lwsc);
         }
+        pd.put("codeType", "CATEGORY_TYPE");
+        json.put("cTypes", wechatIndentService.findCType(pd));
         super.writeJson(json, response);
     }
 
@@ -118,6 +120,7 @@ public class WechatIndentController extends BaseAction {
             }
         }
         List<PageData> resList = new ArrayList<>();
+
         PageData res1 = new PageData();
         PageData res2 = new PageData();
         PageData res3 = new PageData();
@@ -168,7 +171,7 @@ public class WechatIndentController extends BaseAction {
         //String amountFen = Float.valueOf((Float.parseFloat(amount)*100)).toString();
         String amountFen = "1";
         //设置body变量 (支付成功显示在微信支付 商品详情中)
-        String body = "啦啦啦测试";
+        String body = "烟台樱桃";
         //设置随机字符串
         String nonceStr = WXPayUtil.generateNonceStr();
         //设置商户订单号
@@ -217,6 +220,7 @@ public class WechatIndentController extends BaseAction {
                 resultJson.put("key", mineConfig.getKey());
                 resultJson.put("signType", WXPayConstants.MD5);
                 resultJson.put("sign", resp.get("sign"));
+                resultJson.put("total_fee", amount);
                 Map<String, String> paySign = new HashMap<>();
                 paySign.put("appId", mineConfig.getAppID());
                 paySign.put("nonceStr", nonceStr);

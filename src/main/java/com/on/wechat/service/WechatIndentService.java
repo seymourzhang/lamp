@@ -1,6 +1,7 @@
 package com.on.wechat.service;
 
 import com.on.util.common.PageData;
+import com.on.wechat.entity.WechatCode;
 import com.on.wechat.entity.WechatGoods;
 import com.on.wechat.entity.WechatIndentTransaction;
 
@@ -10,7 +11,9 @@ import java.util.Map;
 
 public interface WechatIndentService {
 
-    List<WechatGoods> findGoods(PageData pd);
+    List<Map<String, Object>> findGoods(PageData pd);
+
+    List<WechatCode> findCType(PageData pd);
 
     WechatIndentTransaction dealTransaction(PageData pd);
 

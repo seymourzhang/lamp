@@ -1,5 +1,7 @@
 package com.on.wechat.entity;
 
+import org.springsource.loaded.infra.UsedByGeneratedCode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -29,6 +31,9 @@ public class WechatGoods implements Serializable {
 
     @Column(name = "thumb_url", length = 100)
     private String thumbUrl;
+
+    @Column(name = "inventory_amount", length = 100, columnDefinition = "int default 0")
+    private int inventoryAmount;
 
     @Column(name = "modify_datetime", length = 100)
     private Date modifyDatetime;
@@ -79,6 +84,14 @@ public class WechatGoods implements Serializable {
 
     public void setThumbUrl(String thumbUrl) {
         this.thumbUrl = thumbUrl;
+    }
+
+    public int getInventoryAmount() {
+        return inventoryAmount;
+    }
+
+    public void setInventoryAmount(int inventoryAmount) {
+        this.inventoryAmount = inventoryAmount;
     }
 
     public Date getModifyDatetime() {

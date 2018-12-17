@@ -58,6 +58,14 @@ public class WechatUser implements Serializable {
     @Column(name = "local_session_id", length = 100)
     private String localSessionId;
 
+    /**
+     * 注释:
+     * 00:  卖家
+     * 01:  客户
+     */
+    @Column(name = "user_type", length = 100)
+    private String userType;
+
     public Long getId() {
         return this.Id;
     }
@@ -176,5 +184,13 @@ public class WechatUser implements Serializable {
 
     public void setLocalSessionId(String localSessionId) {
         this.localSessionId = localSessionId;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

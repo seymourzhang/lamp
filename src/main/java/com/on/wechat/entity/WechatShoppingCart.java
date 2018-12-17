@@ -42,6 +42,9 @@ public class WechatShoppingCart implements Serializable {
     @Column(name = "total_amount", length = 100)
     private BigDecimal totalAmount;
 
+    @Column(name = "category_type", length = 100)
+    private String categoryType;
+
     @Column(name = "operation_date", length = 100)
     private Date operationDate;
 
@@ -118,6 +121,14 @@ public class WechatShoppingCart implements Serializable {
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public String getCategoryType() {
+        return categoryType;
+    }
+
+    public void setCategoryType(String categoryType) {
+        this.categoryType = categoryType;
     }
 
     public Date getOperationDate() {

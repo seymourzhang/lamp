@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -34,8 +35,27 @@ public class WechatCartController extends BaseAction {
         PageData pd = this.getPageData();
         int userId = pd.getInteger("user_id");
         JSONObject json = new JSONObject();
-        List<WechatShoppingCart> lwsc = wechatCartService.findByUserId(userId);
-        json.put("data", lwsc);
+        pd.put("userId", userId);
+        List<HashMap<String, Object>> lwsc = wechatCartService.findByUserId(pd);
+        List<PageData> lpd = new ArrayList<>();
+        for (HashMap<String, Object> pageData : lwsc) {
+            PageData temp = new PageData();
+            temp.put("id", pageData.get("id") == null ? "" : pageData.get("id"));
+            temp.put("amount", pageData.get("amount") == null ? "" : pageData.get("amount").toString());
+            temp.put("goodsId", pageData.get("goodsId") == null ? "" : pageData.get("goodsId").toString());
+            temp.put("goodsName", pageData.get("goodsName") == null ? "" : pageData.get("goodsName").toString());
+            temp.put("goodsPrice", pageData.get("goodsPrice") == null ? "" : pageData.get("goodsPrice").toString());
+            temp.put("modifyDateTIme", pageData.get("modifyDateTIme") == null ? "" : pageData.get("modifyDateTIme").toString());
+            temp.put("operationDate", pageData.get("operationDate") == null ? "" : pageData.get("operationDate").toString());
+            temp.put("thumbUrl", pageData.get("thumbUrl") == null ? "" : pageData.get("thumbUrl").toString());
+            temp.put("total", pageData.get("total") == null ? "" : pageData.get("total").toString());
+            temp.put("totalAmount", pageData.get("totalAmount") == null ? "" : pageData.get("totalAmount").toString());
+            temp.put("userId", pageData.get("userId") == null ? "" : pageData.get("userId").toString());
+            temp.put("categoryName", pageData.get("categoryName") == null ? "" : pageData.get("categoryName").toString());
+            temp.put("categoryValue", pageData.get("categoryValue") == null ? "" : pageData.get("categoryValue").toString());
+            lpd.add(temp);
+        }
+        json.put("data", lpd);
         super.writeJson(json, response);
     }
 
@@ -49,14 +69,17 @@ public class WechatCartController extends BaseAction {
         String goodsId = pdParam.getString("goodsId");
         Long amount = Long.parseLong(pdParam.getString("amount"));
 //        BigDecimal total = new BigDecimal(pdParam.getString("total"));
+        String cType = pdParam.getString("categoryType");
         BigDecimal goodPrice = pdParam.getBigDecimal("goodsPrice");
-        List<WechatShoppingCart> lwsc = wechatCartService.findByUserId(userId);
+        BigDecimal totalAmount = pdParam.getBigDecimal("totalAmount");
+        List<WechatShoppingCart> lwsc = wechatCartService.findByUserIdAndType(userId, cType);
         for (WechatShoppingCart cart : lwsc) {
             String goodsIdPre = cart.getGoodsId();
             if (goodsId.equals(goodsIdPre)) {
                 cart.setModifyDatetime(new Date());
                 cart.setAmount(cart.getAmount() + amount);
-                cart.setTotalAmount(goodPrice.multiply(new BigDecimal(pdParam.getString("amount"))).add(cart.getTotalAmount()));
+                cart.setTotalAmount(cart.getTotalAmount().add(totalAmount));
+                cart.setCategoryType(cType);
                 wechatCartService.save(cart);
                 json.put("meta", JSONObject.parseObject("{'code': '0','message': '保存成功'}"));
                 super.writeJson(json, response);
@@ -72,8 +95,9 @@ public class WechatCartController extends BaseAction {
         weCart.setOperationDate(new Date());
         weCart.setUserId(pdParam.getString("userId"));
         weCart.setAmount(amount);
+        weCart.setCategoryType(cType);
 //        weCart.setTotal(new BigDecimal(pdParam.getString("total")));
-        weCart.setTotalAmount(goodPrice.multiply(new BigDecimal(amount)));
+        weCart.setTotalAmount(totalAmount);
         wechatCartService.save(weCart);
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '保存成功'}"));
         super.writeJson(json, response);
@@ -91,9 +115,11 @@ public class WechatCartController extends BaseAction {
     public void updateAmount(HttpServletResponse response) throws Exception {
         PageData pd = this.getPageData();
         JSONObject json = new JSONObject();
+        String amount = pd.getString("amount");
+        String totalAmount = pd.getString("totalAmount");
         WechatShoppingCart temp = wechatCartService.findById(Long.parseLong(pd.getString("cartId")));
-        temp.setAmount(Long.parseLong(pd.getString("amount")));
-        temp.setTotalAmount(new BigDecimal(pd.getString("amount")).multiply(temp.getGoodsPrice()));
+        temp.setAmount(Long.parseLong(amount));
+        temp.setTotalAmount(new BigDecimal(totalAmount));
         temp.setModifyDatetime(new Date());
         temp = wechatCartService.save(temp);
         PageData wsc = new PageData();
