@@ -30,6 +30,12 @@ public class WechatCode implements Serializable {
     @Column(name = "we_bak2")
     private BigDecimal weBak2;
 
+    @Column(name = "we_bak3")
+    private String weBak3;
+
+    @Column(name = "we_bak4")
+    private String weBak4;
+
     @Column(name = "create_datetime", length = 100)
     private Date createDatetime;
 
@@ -82,6 +88,22 @@ public class WechatCode implements Serializable {
 
     public void setWeBak2(BigDecimal weBak2) {
         this.weBak2 = weBak2;
+    }
+
+    public String getWeBak3() {
+        return weBak3;
+    }
+
+    public void setWeBak3(String weBak3) {
+        this.weBak3 = weBak3;
+    }
+
+    public String getWeBak4() {
+        return weBak4;
+    }
+
+    public void setWeBak4(String weBak4) {
+        this.weBak4 = weBak4;
     }
 
     public Date getCreateDatetime() {

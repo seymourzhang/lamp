@@ -69,8 +69,31 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         return query.getResultList();
     }
 
-    public List<WechatCode> findCType(PageData pd) {
-        return wechatCodeRepository.findByCodeType(pd.getString("codeType"));
+    public List<HashMap<String, Object>> findCType(PageData pd) {
+        List<Map<String, Object>> lwg = new ArrayList<>();
+        String sql = "select " +
+                     "  create_datetime createDatetime, " +
+                     "  modify_datetime modifyDatetime, " +
+                     "  we_bak1 weBak1, " +
+                     "  we_code_id weCodeId, " +
+                     "  we_code_name weCodeName, " +
+                     "  we_code_type weCodeType, " +
+                     "  we_bak2 weBak2, " +
+                     "  we_bak3 weBak3, " +
+                     "  we_bak4 weBak4 " +
+                     "from wechat_code " +
+                     "where we_code_type = ?1";
+        if (pd.get("we_code_id") != null) {
+            sql += " and we_code_id = ?2";
+        }
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter(1, pd.get("codeType"));
+        if (pd.get("we_code_id") != null) {
+            query.setParameter(2, pd.get("we_code_id"));
+        }
+        //转换为Map集合
+        query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
     }
 
     public WechatIndentTransaction dealTransaction(PageData pd) {

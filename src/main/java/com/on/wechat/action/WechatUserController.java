@@ -6,7 +6,6 @@ import com.on.util.common.*;
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
 import com.on.wechat.service.WechatUserService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -16,13 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @RestController
@@ -45,45 +39,63 @@ public class WechatUserController extends BaseAction {
         System.out.println("nick_name" + ni);
         String nickName = Base64.encodeToString(ni.getBytes());
         System.out.println("nick_name" + Base64.decodeToString(nickName));
-        String sessionKey = pd.get("session_key").toString();
-        String openId = pd.get("open_id").toString();
         String idStr = pd.get("id").toString();
+        String jsCode = pd.get("js_code").toString();
 
-        Subject currentUser = SecurityUtils.getSubject();
-        Session session = currentUser.getSession();
-        session.setAttribute("sessionLocal", new SimpleHash("SHA-1", sessionKey, openId));
+        JSONObject params = new JSONObject();
+        params.put("appid", PubFun.getPropertyValue("Pub.APPLYID"));
+        params.put("secret", PubFun.getPropertyValue("Pub.screte"));
+        params.put("js_code", jsCode);
+        params.put("grant_type", "authorization_code");
+        StringBuilder parm = new StringBuilder();
+		if (params != null && !params.isEmpty()) {
+			for (Map.Entry<String, Object> entry : params.entrySet()) {
+				parm.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+			}
+		}
+        JSONObject loginResult = PubFun.get("https://api.weixin.qq.com/sns/jscode2session?" + parm.toString());
+        String openId = loginResult.getString("openid");
+        String sessionKey = loginResult.getString("session_key");
+
+        if (openId != null) {
+            Subject currentUser = SecurityUtils.getSubject();
+            Session session = currentUser.getSession();
+            session.setAttribute("sessionLocal", new SimpleHash("SHA-1", sessionKey, openId));
 //        session.setTimeout(60 * 1000 * 5);
-        String rawData = Base64.encodeToString(pd.get("raw_data").toString().getBytes());
-        if (!"".equals(idStr)) {
-            we.setId(Long.parseLong(idStr));
-        }
-        we.setNickName(nickName);
-        we.setGender(pd.get("gender").toString());
-        we.setLanguage(pd.get("language").toString());
-        we.setCity(pd.get("city").toString());
-        we.setProvince(pd.get("province").toString());
-        we.setCountry(pd.get("country").toString());
-        we.setAvatarUrl(pd.get("avatar_url").toString());
-        we.setOpenId(openId);
-        we.setSessionKey(sessionKey);
-        we.setSignature(pd.get("signature").toString());
-        we.setIv(pd.get("iv").toString());
-        we.setRawData(rawData);
-        we.setCode(pd.get("code").toString());
+            String rawData = Base64.encodeToString(pd.get("raw_data").toString().getBytes());
+            if (!"".equals(idStr)) {
+                we.setId(Long.parseLong(idStr));
+            }
+            we.setNickName(nickName);
+            we.setGender(pd.get("gender").toString());
+            we.setLanguage(pd.get("language").toString());
+            we.setCity(pd.get("city").toString());
+            we.setProvince(pd.get("province").toString());
+            we.setCountry(pd.get("country").toString());
+            we.setAvatarUrl(pd.get("avatar_url").toString());
+            we.setOpenId(openId);
+            we.setSessionKey(sessionKey);
+            we.setSignature(pd.get("signature").toString());
+            we.setIv(pd.get("iv").toString());
+            we.setRawData(rawData);
+            we.setCode(pd.get("code").toString());
 
-        WechatUser wCheck = wechatUserService.findByOpenId(openId);
-        if (null == wCheck) {
-            we = wechatUserService.saveWechatUser(we);
+            WechatUser wCheck = wechatUserService.findByOpenId(openId);
+            if (null == wCheck) {
+                we = wechatUserService.saveWechatUser(we);
+            } else {
+                we.setLocalSessionId(session.getId().toString());
+                we.setId(wCheck.getId());
+                we = wechatUserService.saveWechatUser(we);
+            }
+
+            we.setNickName(Base64.decodeToString(we.getNickName()));
+            we.setRawData(Base64.decodeToString(we.getRawData()));
+            json.put("obj", we);
+            json.put("sessionId", session.getId());
         } else {
-            we.setLocalSessionId(session.getId().toString());
-            we.setId(wCheck.getId());
-            we = wechatUserService.saveWechatUser(we);
+            json.put("msg", "登录出错，请联系客服！");
         }
-
-        we.setNickName(Base64.decodeToString(we.getNickName()));
-        we.setRawData(Base64.decodeToString(we.getRawData()));
-        json.put("obj", we);
-        json.put("sessionId", session.getId());
         super.writeJson(json, response);
     }
 
@@ -215,6 +227,16 @@ public class WechatUserController extends BaseAction {
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
         super.writeJson(json, response);
     }
+
+
+    /*public static void main(String[] args) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("appid", "wx255aa55368e8f275");
+        params.put("secret", "33df13966f5562cbbf1b42cc10b18125");
+        params.put("js_code", "021ndiG72gcemS0fBkE72EqCG72ndiGn");
+        params.put("grant_type", "authorization_code");
+//        post("https://api.weixin.qq.com/sns/jscode2session", params);
+    }*/
 
 }
 

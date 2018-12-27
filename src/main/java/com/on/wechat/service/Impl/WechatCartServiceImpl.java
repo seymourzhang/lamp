@@ -40,7 +40,7 @@ public class WechatCartServiceImpl implements WechatCartService {
                     "  wc.we_code_name categoryName," +
                     "  wc.we_bak2 categoryValue " +
                     "from wechat_shopping_cart wsc " +
-                    "  left join wechat_code wc on wc.we_code_id = wsc.category_type " +
+                    "  left join wechat_code wc on wc.we_code_id = wsc.category_type and wc.we_code_type = 'CATEGORY_TYPE' " +
                     "where wsc.user_id = ?1";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter(1, userId);

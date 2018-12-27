@@ -13,7 +13,7 @@ public interface WechatIndentService {
 
     List<Map<String, Object>> findGoods(PageData pd);
 
-    List<WechatCode> findCType(PageData pd);
+    List<HashMap<String, Object>> findCType(PageData pd);
 
     WechatIndentTransaction dealTransaction(PageData pd);
 

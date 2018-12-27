@@ -10,8 +10,5 @@ import java.util.List;
 
 public interface WechatCodeRepository extends JpaRepository<WechatCode, Long> {
 
-    @Query(value = "select * from wechat_code " +
-                   "where we_code_type = :codeType ", nativeQuery = true)
-    List<WechatCode> findByCodeType(@Param("codeType") String codeType);
 
 }

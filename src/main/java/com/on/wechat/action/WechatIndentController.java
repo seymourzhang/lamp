@@ -1,13 +1,10 @@
 package com.on.wechat.action;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.on.util.action.BaseAction;
 import com.on.util.common.*;
-import com.on.wechat.entity.WechatGoods;
-import com.on.wechat.entity.WechatIndentDetail;
+import com.on.wechat.entity.WechatCode;
 import com.on.wechat.entity.WechatIndentTransaction;
-import com.on.wechat.entity.WechatShoppingCart;
 import com.on.wechat.service.WechatIndentService;
 import com.on.wechat.wxpay.sdk.MineConfig;
 import com.on.wechat.wxpay.sdk.WXPay;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -208,7 +204,8 @@ public class WechatIndentController extends BaseAction {
             Long timeStamp = System.currentTimeMillis() / 1000;
             if ("SUCCESS".equals(resp.get("result_code"))) {
                 resultJson.put("prepayId", resp.get("prepay_id"));
-                resultJson.put("returnCode", "SUCCESS");
+                resultJson.put("return_code", resp.get("return_code"));
+                resultJson.put("result_code", resp.get("result_code"));
                 resultJson.put("mchId", resp.get("mch_id"));
                 resultJson.put("returnMsg", resp.get("return_msg"));
                 resultJson.put("tradeType", resp.get("trade_type"));
@@ -230,7 +227,7 @@ public class WechatIndentController extends BaseAction {
                 String signPay = WXPayUtil.generateSignature(paySign, mineConfig.getKey());
                 resultJson.put("paySign", signPay);
             } else {
-                resultJson.put("return_obj", resp);
+                resultJson.putAll(resp);
             }
             System.out.println(resp);
         } catch (Exception e) {
@@ -238,6 +235,57 @@ public class WechatIndentController extends BaseAction {
         }
         System.out.println(resultJson);
         super.writeJson(resultJson, response);
+    }
+
+    @RequestMapping("/deliverTemplateMsg")
+    public void deliverTemplateMsg(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        try {
+            PageData pd = this.getPageData();
+            String prePayId = pd.getString("prepayId");
+            String openId = pd.getString("openId");
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("grant_type", "client_credential");
+            map.put("appid", PubFun.getPropertyValue("Pub.APPLYID"));
+            map.put("secret", PubFun.getPropertyValue("Pub.screte"));
+            JSONObject token = PubFun.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + PubFun.getPropertyValue("Pub.APPLYID") + "&secret=" + PubFun.getPropertyValue("Pub.screte"));
+            String to = token.getString("access_token");
+            if (!"".equals(to)) {
+                JSONObject data = new JSONObject();
+                JSONObject value1 = new JSONObject();
+                JSONObject value2 = new JSONObject();
+                JSONObject value3 = new JSONObject();
+                JSONObject value4 = new JSONObject();
+                JSONObject value5 = new JSONObject();
+                JSONObject value6 = new JSONObject();
+                value1.put("value", new Date());
+                value2.put("value", new Date());
+                value3.put("value", new Date());
+                value4.put("value", new Date());
+                value5.put("value", new Date());
+                value6.put("value", new Date());
+                data.put("keyword1", value1);
+                data.put("keyword2", value2);
+                data.put("keyword3", value3);
+                data.put("keyword4", value4);
+                data.put("keyword5", value5);
+                data.put("keyword6", value6);
+                String dataStr = data.toString();
+                JSONObject json = new JSONObject();
+                json.put("touser", openId);
+                json.put("template_id", "TaAtDI_9C8rad2L8y5XX44rCEDKOnSNhxQRNJyZ6WYI");
+                json.put("page", "/page/mine/transaction/transaction");
+                json.put("form_id", prePayId);
+                json.put("data", dataStr);
+                json.put("emphasis_keyword", "keyword1.DATA");
+                System.out.println("json data:" + json);
+                result = PubFun.post("https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + to, json);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(result);
+        super.writeJson(result, response);
     }
 
     @RequestMapping("/closeOrder")
@@ -297,53 +345,15 @@ public class WechatIndentController extends BaseAction {
         super.writeJson(json, response);
     }
 
-    /*@RequestMapping("/generateSignature")
-    public void generateSignature(HttpServletRequest request, HttpServletResponse response) {
-        logger.info("微信 支付接口生成签名 方法开始");
-        //实例化返回对象
-        JSONObject resultJson = new JSONObject();
+    @RequestMapping("/videoCollect")
+    public void videoCollect(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        PageData pd = this.getPageData();
+        pd.put("codeType", "VIDEO_URL");
+        pd.put("we_code_id", "1");
+        List<HashMap<String, Object>> wc = wechatIndentService.findCType(pd);
+        String videoUrl = "http://vv.video.qq.com/getinfo?vids=" + wc.get(0).get("weBak3") + "&platform=101001&charge=0&otype=json";//e0301ajih22
+        JSONObject token = PubFun.get(videoUrl);
+        super.writeJson(token, response);
+    }
 
-        //获得参数(微信统一下单接口生成的prepay_id )
-        String prepayId = request.getParameter("prepayId");
-        //创建 时间戳
-        String timeStamp = Long.valueOf(System.currentTimeMillis()).toString();
-        //创建 随机串
-        String nonceStr = Tools.getOrderIdByUUId().replaceAll("-", "");
-        //创建 MD5
-        String signType = "MD5";
-
-        //创建hashmap(用户获得签名)
-        SortedMap<String, String> paraMap = new TreeMap<String, String>();
-        //设置(小程序ID)(这块一定要是大写)
-        paraMap.put("appId", PubFun.getPropertyValue("Pub.APPLYID"));
-        //设置(时间戳)
-        paraMap.put("timeStamp", timeStamp);
-        //设置(随机串)
-        paraMap.put("nonceStr", nonceStr);
-        //设置(数据包)
-        paraMap.put("package", "prepay_id="+prepayId);
-        //设置(签名方式)
-        paraMap.put("signType", signType);
-
-
-        //调用逻辑传入参数按照字段名的 ASCII 码从小到大排序（字典序）
-        String stringA = Tools.formatUrlMap(paraMap, false, false);
-        //第二步，在stringA最后拼接上key得到stringSignTemp字符串，并对stringSignTemp进行MD5运算，再将得到的字符串所有字符转换为大写，得到sign值signValue。(签名)
-        String sign = MD5(stringA+"&key=" + KEY).toUpperCase();
-
-        if(sign != null && !"".equals(sign)){
-            //返回签名信息
-            resultJson.put("sign", sign);
-            //返回随机串(这个随机串是新创建的)
-            resultJson.put("nonceStr", nonceStr);
-            //返回时间戳
-            resultJson.put("timeStamp", timeStamp);
-            //返回数据包
-            resultJson.put("package", "prepay_id="+prepayId);
-
-            logger.info("微信 支付接口生成签名 设置返回值");
-        }
-        logger.info("微信 支付接口生成签名 方法结束");
-        super.writeJson(resultJson, response);
-    }*/
 }
