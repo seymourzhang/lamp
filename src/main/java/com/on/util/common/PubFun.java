@@ -5,6 +5,7 @@
  */
 package com.on.util.common;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 
@@ -417,6 +418,7 @@ public class PubFun {
 		HttpURLConnection conn = null;
 		// 数据输出流，输出参数信息
 		DataOutputStream dataOut = null;
+		PrintWriter out = null;
 		// 数据输入流，处理服务器响应数据
 		BufferedReader dataIn = null;
 
@@ -439,7 +441,7 @@ public class PubFun {
 			conn.setInstanceFollowRedirects(true);
 
 			// 设置内容的类型,设置为经过urlEncoded编码过的from参数
-			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+			conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 			conn.setRequestProperty("accept", "*/*");
 			// conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible;
 			// MSIE 6.0; Windows NT 5.1;SV1)");
@@ -448,12 +450,20 @@ public class PubFun {
 			// (请求未开始,直到connection.getInputStream()方法调用时才发起,以上各个参数设置需在此方法之前进行)
 			conn.connect();
 
-			// 创建输入输出流,用于往连接里面输出携带的参数,(输出内容为?后面的内容)
+			/*// 创建输入输出流,用于往连接里面输出携带的参数,(输出内容为?后面的内容)
 			dataOut = new DataOutputStream(conn.getOutputStream());
 			// 将参数输出到连接
-			dataOut.writeBytes(params != null ? params.toString() : "");
+			dataOut.writeBytes(params != null ? JSON.toJSONString(params) : "");
 			// 输出完成后刷新并关闭流
-			dataOut.flush();
+			dataOut.flush();*/
+
+			// 获取URLConnection对象对应的输出流
+			out = new PrintWriter(conn.getOutputStream());
+			System.out.println("post out print" + JSON.toJSONString(params));
+			// 发送请求参数
+			out.print(JSON.toJSONString(params));
+			// flush输出流的缓冲
+			out.flush();
 
 			//输出连接信息，实际使用时去掉
 //			outConnInfo(conn, url);
@@ -476,6 +486,9 @@ public class PubFun {
 		} finally {
 			try {
 				// 重要且易忽略步骤 (关闭流,切记!)
+				if (out != null) {
+					out.close();
+				}
 				if (dataOut != null) {
 					dataOut.close();
 				}

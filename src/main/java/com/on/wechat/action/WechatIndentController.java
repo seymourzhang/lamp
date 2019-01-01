@@ -1,5 +1,6 @@
 package com.on.wechat.action;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.on.util.action.BaseAction;
 import com.on.util.common.*;
@@ -58,6 +59,7 @@ public class WechatIndentController extends BaseAction {
         String totalAmount = pd.getString("totalAmount");
         String addressId = pd.getString("addressId");
         String indentCode = Tools.getOrderIdByUUId();
+        Date now = new Date();
 
         WechatIndentTransaction wit = new WechatIndentTransaction();
         wit.setUserId(userId);
@@ -65,7 +67,8 @@ public class WechatIndentController extends BaseAction {
         wit.setIndentCode(indentCode);
         wit.setAddressId(addressId);
         wit.setOperationType("01");
-        wit.setModifyDatetime(new Date());
+        wit.setModifyDatetime(now);
+        wit.setCreateDatetime(now);
         wit.setOperationDate(new Date());
         pd.put("wit", wit);
 
@@ -90,6 +93,7 @@ public class WechatIndentController extends BaseAction {
     public void indents(HttpServletResponse response) throws Exception {
         PageData pd = this.getPageData();
         JSONObject json = new JSONObject();
+        String curTab = pd.getString("curTab");
         List<HashMap<String, Object>> wits = wechatIndentService.queryTransactions(pd);
         List<HashMap<String, Object>> transType01 = new ArrayList<>();
         List<HashMap<String, Object>> transType02 = new ArrayList<>();
@@ -145,7 +149,25 @@ public class WechatIndentController extends BaseAction {
         resList.add(res5);
         resList.add(res6);
         resList.add(res7);
-        json.put("data", resList);
+        if ("0".equals(curTab)) {
+            json.put("data", res1);
+        } else if ("1".equals(curTab)) {
+            json.put("data", res2);
+        } else if ("2".equals(curTab)) {
+            json.put("data", res3);
+        } else if ("3".equals(curTab)) {
+            json.put("data", res4);
+        } else if ("4".equals(curTab)) {
+            json.put("data", res5);
+        } else if ("5".equals(curTab)) {
+            json.put("data", res6);
+        } else if ("6".equals(curTab)) {
+            json.put("data", res7);
+        }
+        int[] lengths = {transType01.size(), transType02.size(), transType03.size(), transType04.size(),
+                         transType05.size(), transType06.size(), transType07.size()};
+        json.put("lengths", lengths);
+//        json.put("data", resList);
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
         super.writeJson(json, response);
     }
@@ -162,6 +184,8 @@ public class WechatIndentController extends BaseAction {
         String openid = request.getParameter("openid");
 
         String indentCode = request.getParameter("indent_code");
+
+        String indentId = request.getParameter("indentId");
         //接口调用总金额单位为分换算一下(测试金额改成1,单位为分则是0.01,根据自己业务场景判断是转换成float类型还是int类型)
         //String amountFen = Integer.valueOf((Integer.parseInt(amount)*100)).toString();
         //String amountFen = Float.valueOf((Float.parseFloat(amount)*100)).toString();
@@ -226,6 +250,7 @@ public class WechatIndentController extends BaseAction {
                 paySign.put("timeStamp", timeStamp.toString());
                 String signPay = WXPayUtil.generateSignature(paySign, mineConfig.getKey());
                 resultJson.put("paySign", signPay);
+                resultJson.put("indentId", indentId);
             } else {
                 resultJson.putAll(resp);
             }
@@ -244,6 +269,7 @@ public class WechatIndentController extends BaseAction {
             PageData pd = this.getPageData();
             String prePayId = pd.getString("prepayId");
             String openId = pd.getString("openId");
+            String indentId = pd.getString("indentId");
             HashMap<String, Object> map = new HashMap<>();
             map.put("grant_type", "client_credential");
             map.put("appid", PubFun.getPropertyValue("Pub.APPLYID"));
@@ -251,6 +277,8 @@ public class WechatIndentController extends BaseAction {
             JSONObject token = PubFun.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + PubFun.getPropertyValue("Pub.APPLYID") + "&secret=" + PubFun.getPropertyValue("Pub.screte"));
             String to = token.getString("access_token");
             if (!"".equals(to)) {
+                pd.put("indentId", indentId);
+                List<HashMap<String, Object>> pdResult = wechatIndentService.findDeliverData(pd);
                 JSONObject data = new JSONObject();
                 JSONObject value1 = new JSONObject();
                 JSONObject value2 = new JSONObject();
@@ -258,12 +286,18 @@ public class WechatIndentController extends BaseAction {
                 JSONObject value4 = new JSONObject();
                 JSONObject value5 = new JSONObject();
                 JSONObject value6 = new JSONObject();
-                value1.put("value", new Date());
-                value2.put("value", new Date());
-                value3.put("value", new Date());
-                value4.put("value", new Date());
-                value5.put("value", new Date());
-                value6.put("value", new Date());
+                value1.put("value", pdResult.get(0).get("indent_code").toString());
+                value1.put("color", "#c2c2c2");
+                value2.put("value", pdResult.get(0).get("indent_name").toString());
+                value2.put("color", "#c2c2c2");
+                value3.put("value", pdResult.get(0).get("money_sum").toString());
+                value3.put("color", "#c2c2c2");
+                value4.put("value", pdResult.get(0).get("gen_date").toString());
+                value4.put("color", "#c2c2c2");
+                value5.put("value", pdResult.get(0).get("pay_date").toString());
+                value5.put("color", "#c2c2c2");
+                value6.put("value", pdResult.get(0).get("address").toString());
+                value6.put("color", "#c2c2c2");
                 data.put("keyword1", value1);
                 data.put("keyword2", value2);
                 data.put("keyword3", value3);
@@ -273,11 +307,11 @@ public class WechatIndentController extends BaseAction {
                 String dataStr = data.toString();
                 JSONObject json = new JSONObject();
                 json.put("touser", openId);
-                json.put("template_id", "TaAtDI_9C8rad2L8y5XX44rCEDKOnSNhxQRNJyZ6WYI");
+                json.put("template_id", "TaAtDI_9C8rad2L8y5XX44z3ukQEnRNNeFDFoqClmGA");
                 json.put("page", "/page/mine/transaction/transaction");
                 json.put("form_id", prePayId);
-                json.put("data", dataStr);
-                json.put("emphasis_keyword", "keyword1.DATA");
+                json.put("data", data);
+                json.put("emphasis_keyword", value1);
                 System.out.println("json data:" + json);
                 result = PubFun.post("https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + to, json);
             }

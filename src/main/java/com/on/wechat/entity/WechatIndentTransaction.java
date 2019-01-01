@@ -43,6 +43,9 @@ public class WechatIndentTransaction implements Serializable {
     @Column(name = "modify_datetime", length = 100)
     private Date modifyDatetime;
 
+    @Column(name = "create_datetime", length =  100)
+    private Date createDatetime;
+
     public Long getId() {
         return this.Id;
     }
@@ -105,5 +108,13 @@ public class WechatIndentTransaction implements Serializable {
 
     public void setModifyDatetime(Date modifyDatetime) {
         this.modifyDatetime = modifyDatetime;
+    }
+
+    public Date getCreateDatetime() {
+        return createDatetime;
+    }
+
+    public void setCreateDatetime(Date createDatetime) {
+        this.createDatetime = createDatetime;
     }
 }

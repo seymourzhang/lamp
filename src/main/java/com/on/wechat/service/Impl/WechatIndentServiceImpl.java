@@ -220,4 +220,27 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         wechatIndentChangeRepository.save(wic);
     }
 
+    public List<HashMap<String, Object>> findDeliverData(PageData pd) {
+        String indentId = pd.getString("indentId");
+        String sql = "select " +
+                "  wit.indent_code, " +
+                "  group_concat(wid.good_name) indent_name, " +
+                "  wit.money_sum, " +
+                "  wic_gen.operation_date      gen_date, " +
+                "  wic_pay.operation_date      pay_date, " +
+                "  wa.address " +
+                "from wechat_indent_transaction wit " +
+                "  left join wechat_indent_detail wid on wit.id = wid.indent_id " +
+                "  left join wechat_indent_change wic_gen on wic_gen.indent_id = wit.id and wic_gen.operation_type = '01' " +
+                "  left join wechat_indent_change wic_pay on wic_pay.indent_id = wit.id and wic_pay.operation_type = '02' " +
+                "  left join wechat_address wa on wa.id = wit.address_id " +
+                "where wit.id = ?1 " +
+                "group by wit.id";
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter(1, indentId);
+        //转换为Map集合
+        query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        return query.getResultList();
+    }
+
 }

@@ -25,4 +25,6 @@ public interface WechatIndentService {
 
     void modifyIndentStatus(PageData pd);
 
+    List<HashMap<String, Object>> findDeliverData(PageData pd);
+
 }
