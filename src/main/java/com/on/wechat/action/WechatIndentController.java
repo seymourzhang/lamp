@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.on.util.action.BaseAction;
 import com.on.util.common.*;
 import com.on.wechat.entity.WechatCode;
+import com.on.wechat.entity.WechatIndentCompletion;
 import com.on.wechat.entity.WechatIndentTransaction;
 import com.on.wechat.service.WechatIndentService;
 import com.on.wechat.wxpay.sdk.MineConfig;
@@ -58,6 +59,7 @@ public class WechatIndentController extends BaseAction {
         String userId = pd.getString("userId");
         String totalAmount = pd.getString("totalAmount");
         String addressId = pd.getString("addressId");
+        String formId = pd.getString("formId");
         String indentCode = Tools.getOrderIdByUUId();
         Date now = new Date();
 
@@ -66,6 +68,7 @@ public class WechatIndentController extends BaseAction {
         wit.setMoneySum(new BigDecimal(totalAmount).divide(new BigDecimal(1), 2, BigDecimal.ROUND_HALF_UP));
         wit.setIndentCode(indentCode);
         wit.setAddressId(addressId);
+        wit.setFormId(formId);
         wit.setOperationType("01");
         wit.setModifyDatetime(now);
         wit.setCreateDatetime(now);
@@ -90,7 +93,7 @@ public class WechatIndentController extends BaseAction {
     }
 
     @RequestMapping("/indentQueryAll")
-    public void indents(HttpServletResponse response) throws Exception {
+    public void indentQueryAll(HttpServletResponse response) throws Exception {
         PageData pd = this.getPageData();
         JSONObject json = new JSONObject();
         String curTab = pd.getString("curTab");
@@ -270,6 +273,8 @@ public class WechatIndentController extends BaseAction {
             String prePayId = pd.getString("prepayId");
             String openId = pd.getString("openId");
             String indentId = pd.getString("indentId");
+            String type = pd.getString("type");//after_pay  after_sent
+            String templateId = "";
             HashMap<String, Object> map = new HashMap<>();
             map.put("grant_type", "client_credential");
             map.put("appid", PubFun.getPropertyValue("Pub.APPLYID"));
@@ -278,7 +283,6 @@ public class WechatIndentController extends BaseAction {
             String to = token.getString("access_token");
             if (!"".equals(to)) {
                 pd.put("indentId", indentId);
-                List<HashMap<String, Object>> pdResult = wechatIndentService.findDeliverData(pd);
                 JSONObject data = new JSONObject();
                 JSONObject value1 = new JSONObject();
                 JSONObject value2 = new JSONObject();
@@ -286,32 +290,45 @@ public class WechatIndentController extends BaseAction {
                 JSONObject value4 = new JSONObject();
                 JSONObject value5 = new JSONObject();
                 JSONObject value6 = new JSONObject();
-                value1.put("value", pdResult.get(0).get("indent_code").toString());
-                value1.put("color", "#c2c2c2");
-                value2.put("value", pdResult.get(0).get("indent_name").toString());
-                value2.put("color", "#c2c2c2");
-                value3.put("value", pdResult.get(0).get("money_sum").toString());
-                value3.put("color", "#c2c2c2");
-                value4.put("value", pdResult.get(0).get("gen_date").toString());
-                value4.put("color", "#c2c2c2");
-                value5.put("value", pdResult.get(0).get("pay_date").toString());
-                value5.put("color", "#c2c2c2");
-                value6.put("value", pdResult.get(0).get("address").toString());
-                value6.put("color", "#c2c2c2");
+                JSONObject value7 = new JSONObject();
+                List<HashMap<String, Object>> pdResult = wechatIndentService.findDeliverData(pd);
+                if ("after_pay".equals(type)) {
+                    templateId = PubFun.getPropertyValue("Pub.PAYDELIVER");
+                    value1.put("value", pdResult.get(0).get("indent_code").toString());
+                    value2.put("value", "高级果：" + pdResult.get(0).get("indent_name").toString() + "【烟台大樱桃】");
+                    value3.put("value", pdResult.get(0).get("money_sum").toString());
+                    value4.put("value", pdResult.get(0).get("gen_date").toString());
+                    value5.put("value", pdResult.get(0).get("pay_date").toString());
+                    value6.put("value", pdResult.get(0).get("address").toString());
+                } else if ("after_sent".equals(type)) {
+                    templateId = PubFun.getPropertyValue("Pub.SENTDELIVER");
+                    value1.put("value", pdResult.get(0).get("transport_indent").toString());
+                    value2.put("value", "【顺丰速递】");
+                    value3.put("value", pdResult.get(0).get("sent_date").toString());
+                    value4.put("value", "高级果：" + pdResult.get(0).get("indent_name").toString() + "【烟台大樱桃】");
+                    value5.put("value", pdResult.get(0).get("indent_code").toString());
+                    value6.put("value", pdResult.get(0).get("address").toString());
+                }
+                value7.put("value", "烟台生鲜季");
                 data.put("keyword1", value1);
                 data.put("keyword2", value2);
                 data.put("keyword3", value3);
                 data.put("keyword4", value4);
                 data.put("keyword5", value5);
                 data.put("keyword6", value6);
+                data.put("keyword7", value7);
                 String dataStr = data.toString();
                 JSONObject json = new JSONObject();
-                json.put("touser", openId);
-                json.put("template_id", "TaAtDI_9C8rad2L8y5XX44z3ukQEnRNNeFDFoqClmGA");
-                json.put("page", "/page/mine/transaction/transaction");
-                json.put("form_id", prePayId);
+                json.put("touser", pdResult.get(0).get("open_id").toString());
+                json.put("template_id", templateId);
+                json.put("page", "/page/indent/indent?id=" + indentId);
+                if ("after_pay".equals(type)) {
+                    json.put("form_id", prePayId);
+                } else if ("after_sent".equals(type)) {
+                    json.put("form_id", pdResult.get(0).get("form_id").toString());
+                }
                 json.put("data", data);
-                json.put("emphasis_keyword", value1);
+                json.put("emphasis_keyword", "keyword7.DATA");
                 System.out.println("json data:" + json);
                 result = PubFun.post("https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=" + to, json);
             }
@@ -355,14 +372,15 @@ public class WechatIndentController extends BaseAction {
         String indentId = pd.getString("indent_id");
         String indentType = pd.getString("indent_type");
         String resultIndent = pd.getString("indent_result");
+        String transportIndent = pd.getString("transport_indent");
+        String recallMsg = pd.getString("recall_msg");
 
-        WechatIndentTransaction wit = wechatIndentService.findById(Long.parseLong(indentId));
-        wit.setOperationType(indentType);
-        if ("Success".equals(resultIndent)) {
-            pd.put("wit", wit);
-            wechatIndentService.modifyIndentStatus(pd);
-            json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
-        }
+        pd.put("recallMsg", recallMsg);
+        pd.put("indentId", indentId);
+        pd.put("operationType", indentType);
+        pd.put("transportIndent", transportIndent);
+        wechatIndentService.modifyIndentStatus(pd);
+        json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
     }
 
     @RequestMapping("/notifyResult")
@@ -375,7 +393,7 @@ public class WechatIndentController extends BaseAction {
         mLogger.info("+++++++");
         mLogger.info("+++++++");
         mLogger.info("+++++++");
-        mLogger.info(request);
+        mLogger.info(getDataFromRequest(request));
         super.writeJson(json, response);
     }
 

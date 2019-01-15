@@ -27,6 +27,9 @@ public class WechatIndentChange implements Serializable {
     @Column(name = "address_id", length = 10)
     private String addressId;
 
+    @Column(name = "transport_indent", length = 50)
+    private String transportIndent;
+
     /**
      * 注释:
      * 01:  待付款
@@ -76,6 +79,14 @@ public class WechatIndentChange implements Serializable {
 
     public void setAddressId(String addressId) {
         this.addressId = addressId;
+    }
+
+    public String getTransportIndent() {
+        return transportIndent;
+    }
+
+    public void setTransportIndent(String transportIndent) {
+        this.transportIndent = transportIndent;
     }
 
     public BigDecimal getMoneySum() {

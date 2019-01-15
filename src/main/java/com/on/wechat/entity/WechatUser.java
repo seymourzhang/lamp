@@ -60,7 +60,7 @@ public class WechatUser implements Serializable {
 
     /**
      * 注释:
-     * 00:  卖家
+     * 02:  卖家
      * 01:  客户
      */
     @Column(name = "user_type", length = 100)

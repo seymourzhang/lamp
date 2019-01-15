@@ -28,6 +28,9 @@ public class WechatIndentServiceImpl implements WechatIndentService {
     private WechatIndentTransactionRepository wechatIndentTransactionRepository;
 
     @Autowired
+    private WechatIndentCompletionRepository wechatIndentCompletionRepository;
+
+    @Autowired
     private WechatIndentDetailRepository wechatIndentDetailRepository;
 
     @Autowired
@@ -136,29 +139,47 @@ public class WechatIndentServiceImpl implements WechatIndentService {
     }
 
     public List<HashMap<String, Object>> queryTransactions(PageData pd) {
-        int userId = pd.getInteger("userId");
+        String userId = pd.getString("userId");
         String sql = "select " +
-                "  indent_id, " +
-                "  indent_code, " +
-                "  money_sum, " +
-                "  operation_type, " +
-                "  user_id, " +
-                "  operation_date " +
+                "  wic.indent_id, " +
+                "  wic.indent_code, " +
+                "  wic.money_sum, " +
+                "  wic.operation_type, " +
+                "  wic.user_id, " +
+                "  wic.operation_date, " +
+                "  ifnull(wic.transport_indent, '') transport_indent, " +
+                "  wa.tel, " +
+                "  wa.address, " +
+                "  wa.gender, " +
+                "  wa.name " +
                 "from wechat_indent_completion wic " +
-                "where wic.user_id = ?1 " +
-                "union all " +
+                "  left join wechat_address wa on wa.id = wic.address_id ";
+                if (!"".equals(userId)) {
+                    sql += "where wic.user_id = ?1 ";
+                }
+                sql += "union all " +
                 "select " +
-                "  id indent_id, " +
-                "  indent_code, " +
-                "  money_sum, " +
-                "  operation_type, " +
-                "  user_id, " +
-                "  operation_date " +
+                "  wit.id indent_id, " +
+                "  wit.indent_code, " +
+                "  wit.money_sum, " +
+                "  wit.operation_type, " +
+                "  wit.user_id, " +
+                "  wit.operation_date, " +
+                "  ifnull(wit.transport_indent, '') transport_indent, " +
+                "  wa.tel, " +
+                "  wa.address, " +
+                "  wa.gender, " +
+                "  wa.name " +
                 "from wechat_indent_transaction wit " +
-                "where wit.user_id = ?1 " +
-                "order by operation_date desc" ;
+                "  left join wechat_address wa on wa.id = wit.address_id ";
+                if (!"".equals(userId)) {
+                    sql += "where wit.user_id = ?1 ";
+                }
+                sql += "order by operation_date desc" ;
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter(1, userId);
+        if (!"".equals(userId)) {
+            query.setParameter(1, userId);
+        }
         //转换为Map集合
         query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
@@ -199,25 +220,53 @@ public class WechatIndentServiceImpl implements WechatIndentService {
     }
 
     public void modifyIndentStatus(PageData pd) {
-        WechatIndentTransaction wit = (WechatIndentTransaction) pd.get("wit");
-        String operationType = wit.getOperationType();
+        Long indentId = Long.parseLong(pd.getString("indentId"));
+        WechatIndentTransaction wit = wechatIndentTransactionRepository.findOne(indentId);
+        String operationType = pd.getString("operationType");
+        String recallMsg = pd.getString("recallMsg");
+        String transportIndent = pd.getString("transportIndent");
+        Date now = new Date();
+        WechatIndentCompletion wic = wechatIndentCompletionRepository.findByIndentId(indentId);
         if ("05".equals(operationType) || "06".equals(operationType) || "07".equals(operationType)) {
-            wechatIndentTransactionRepository.delete(wit.getId());
+            if (wic == null) {
+                wechatIndentTransactionRepository.delete(indentId);
+                wic = new WechatIndentCompletion();
+                wic.setAddressId(wit.getAddressId());
+                wic.setIndentId(wit.getId().toString());
+                wic.setIndentCode(wit.getIndentCode());
+                wic.setModifyDatetime(now);
+                wic.setMoneySum(wit.getMoneySum());
+                wic.setOperationType(operationType);
+                wic.setUserId(wit.getUserId());
+                wic.setRecallMessage(recallMsg);
+                wic.setTransportIndent(wit.getTransportIndent());
+                wic.setOperationDate(now);
+            } else {
+                wic.setOperationType(operationType);
+                wic.setRecallMessage(recallMsg);
+                wic.setModifyDatetime(now);
+                wic.setOperationDate(now);
+            }
+            wechatIndentCompletionRepository.save(wic);
         } else {
+            if (wit != null) {
+                wit.setOperationType(operationType);
+                wit.setTransportIndent("".equals(transportIndent) ? wit.getTransportIndent() : transportIndent);
+                wit.setModifyDatetime(now);
+            }
             wit = wechatIndentTransactionRepository.save(wit);
         }
-        Long indentId = wit.getId();
 
-        Date now = new Date();
-        WechatIndentChange wic = new WechatIndentChange();
-        wic.setIndentId(indentId);
-        wic.setAddressId(wit.getAddressId());
-        wic.setMoneySum(wit.getMoneySum());
-        wic.setUserId(wit.getUserId());
-        wic.setOperationType(wit.getOperationType());
-        wic.setModifyDatetime(now);
-        wic.setOperationDate(now);
-        wechatIndentChangeRepository.save(wic);
+        WechatIndentChange wic2 = new WechatIndentChange();
+        wic2.setIndentId(indentId);
+        wic2.setAddressId(wit == null ? wic.getAddressId() : wit.getAddressId());
+        wic2.setTransportIndent(wit == null ? wic.getTransportIndent() : wit.getTransportIndent());
+        wic2.setMoneySum(wit == null ? wic.getMoneySum() : wit.getMoneySum());
+        wic2.setUserId(wit == null ? wic.getUserId() : wit.getUserId());
+        wic2.setOperationType(operationType);
+        wic2.setModifyDatetime(now);
+        wic2.setOperationDate(now);
+        wechatIndentChangeRepository.save(wic2);
     }
 
     public List<HashMap<String, Object>> findDeliverData(PageData pd) {
@@ -228,12 +277,20 @@ public class WechatIndentServiceImpl implements WechatIndentService {
                 "  wit.money_sum, " +
                 "  wic_gen.operation_date      gen_date, " +
                 "  wic_pay.operation_date      pay_date, " +
-                "  wa.address " +
+                "  wa.address," +
+                "  wa.tel, " +
+                "  concat(wa.name, ' ', if(wa.gender = 'male', '男士', '女士')) name, " +
+                "  wic_sent.operation_date                                  sent_date, " +
+                "  wic_sent.transport_indent, " +
+                "  wu.open_id," +
+                "  wit.form_id " +
                 "from wechat_indent_transaction wit " +
                 "  left join wechat_indent_detail wid on wit.id = wid.indent_id " +
                 "  left join wechat_indent_change wic_gen on wic_gen.indent_id = wit.id and wic_gen.operation_type = '01' " +
                 "  left join wechat_indent_change wic_pay on wic_pay.indent_id = wit.id and wic_pay.operation_type = '02' " +
+                "  left join wechat_indent_change wic_sent on wic_sent.indent_id = wit.id and wic_sent.operation_type = '03' " +
                 "  left join wechat_address wa on wa.id = wit.address_id " +
+                "  left join wechat_user wu on wu.id = wit.user_id " +
                 "where wit.id = ?1 " +
                 "group by wit.id";
         Query query = entityManager.createNativeQuery(sql);
@@ -243,4 +300,7 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         return query.getResultList();
     }
 
+    public WechatIndentCompletion findByIndentId(Long orderId) {
+        return wechatIndentCompletionRepository.findByIndentId(orderId);
+    }
 }

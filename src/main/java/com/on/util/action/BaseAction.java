@@ -418,6 +418,34 @@ public class BaseAction {
 	public static void setHeader(HttpServletResponse response, String sign) {
 		response.addHeader(KEY_SIGN, sign);
 	}
-	
+
+
+	/**
+	 * <p>Desc: Get Data From Request</p>
+	 * <p>Date: 2018/8/14</p>
+	 * <p>Author: Raymon</p>
+	 * @param
+	 * @return java.lang.String
+	 */
+	public String getDataFromRequest(HttpServletRequest request) {
+		ServletInputStream is;
+		String str = "";
+		try {
+			is = request.getInputStream();
+			int nRead = 1;
+			int nTotalRead = 0;
+			byte[] bytes = new byte[200000000];
+			while (nRead > 0) {
+				nRead = is.read(bytes, nTotalRead, bytes.length - nTotalRead);
+				if (nRead > 0)
+					nTotalRead = nTotalRead + nRead;
+			}
+			str = new String(bytes, 0, nTotalRead, "utf-8");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			return str;
+		}
+	}
 
 }

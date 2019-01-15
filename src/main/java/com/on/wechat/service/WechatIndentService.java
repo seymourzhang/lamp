@@ -3,6 +3,7 @@ package com.on.wechat.service;
 import com.on.util.common.PageData;
 import com.on.wechat.entity.WechatCode;
 import com.on.wechat.entity.WechatGoods;
+import com.on.wechat.entity.WechatIndentCompletion;
 import com.on.wechat.entity.WechatIndentTransaction;
 
 import java.util.HashMap;
@@ -26,5 +27,7 @@ public interface WechatIndentService {
     void modifyIndentStatus(PageData pd);
 
     List<HashMap<String, Object>> findDeliverData(PageData pd);
+
+    WechatIndentCompletion findByIndentId(Long indentId);
 
 }

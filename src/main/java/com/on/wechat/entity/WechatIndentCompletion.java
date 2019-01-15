@@ -21,7 +21,7 @@ public class WechatIndentCompletion implements Serializable {
     @Column(name = "indent_id", length = 10)
     private String indentId;
 
-    @Column(name = "indent_code", length = 10)
+    @Column(name = "indent_code", length = 100)
     private String indentCode;
 
     @Column(name = "money_sum", length = 100)
@@ -29,6 +29,12 @@ public class WechatIndentCompletion implements Serializable {
 
     @Column(name = "address_id", length = 10)
     private String addressId;
+
+    @Column(name = "transport_indent", length = 50)
+    private String transportIndent;
+
+    @Column(name = "recall_message", length = 5000)
+    private String recallMessage;
 
     /**
      * 注释:
@@ -91,6 +97,22 @@ public class WechatIndentCompletion implements Serializable {
 
     public void setAddressId(String addressId) {
         this.addressId = addressId;
+    }
+
+    public String getTransportIndent() {
+        return transportIndent;
+    }
+
+    public void setTransportIndent(String transportIndent) {
+        this.transportIndent = transportIndent;
+    }
+
+    public String getRecallMessage() {
+        return recallMessage;
+    }
+
+    public void setRecallMessage(String recallMessage) {
+        this.recallMessage = recallMessage;
     }
 
     public String getOperationType() {

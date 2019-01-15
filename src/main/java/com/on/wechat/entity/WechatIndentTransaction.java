@@ -27,6 +27,12 @@ public class WechatIndentTransaction implements Serializable {
     @Column(name = "money_sum", length = 100)
     private BigDecimal moneySum;
 
+    @Column(name = "transport_indent", length = 50)
+    private String transportIndent;
+
+    @Column(name = "form_id", length = 50)
+    private String formId;
+
     /**
      * 注释:
      * 01:  待付款
@@ -84,6 +90,22 @@ public class WechatIndentTransaction implements Serializable {
 
     public void setMoneySum(BigDecimal moneySum) {
         this.moneySum = moneySum;
+    }
+
+    public String getTransportIndent() {
+        return transportIndent;
+    }
+
+    public void setTransportIndent(String transportIndent) {
+        this.transportIndent = transportIndent;
+    }
+
+    public String getFormId() {
+        return formId;
+    }
+
+    public void setFormId(String formId) {
+        this.formId = formId;
     }
 
     public String getOperationType() {

@@ -5,6 +5,7 @@ import com.on.util.action.BaseAction;
 import com.on.util.common.*;
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
+import com.on.wechat.service.WechatIndentService;
 import com.on.wechat.service.WechatUserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.codec.Base64;
@@ -26,6 +27,9 @@ public class WechatUserController extends BaseAction {
 
     @Autowired
     private WechatUserService wechatUserService;
+
+    @Autowired
+    private WechatIndentService wechatIndentService;
 
     private int limit = 10;
 
@@ -79,19 +83,19 @@ public class WechatUserController extends BaseAction {
             we.setIv(pd.get("iv").toString());
             we.setRawData(rawData);
             we.setCode(pd.get("code").toString());
+            we.setUserType("01");
 
             WechatUser wCheck = wechatUserService.findByOpenId(openId);
             if (null == wCheck) {
-                we = wechatUserService.saveWechatUser(we);
+                wCheck = wechatUserService.saveWechatUser(we);
             } else {
-                we.setLocalSessionId(session.getId().toString());
-                we.setId(wCheck.getId());
-                we = wechatUserService.saveWechatUser(we);
+                wCheck.setLocalSessionId(session.getId().toString());
+                wechatUserService.saveWechatUser(wCheck);
             }
 
-            we.setNickName(Base64.decodeToString(we.getNickName()));
-            we.setRawData(Base64.decodeToString(we.getRawData()));
-            json.put("obj", we);
+            wCheck.setNickName(Base64.decodeToString(we.getNickName()));
+            wCheck.setRawData(Base64.decodeToString(we.getRawData()));
+            json.put("obj", wCheck);
             json.put("sessionId", session.getId());
         } else {
             json.put("msg", "登录出错，请联系客服！");
@@ -225,6 +229,18 @@ public class WechatUserController extends BaseAction {
         Long addressId = Long.parseLong(pd.getString("id"));
         wechatUserService.addressDelete(addressId);
         json.put("meta", JSONObject.parseObject("{'code': '0','message': '更新成功'}"));
+        super.writeJson(json, response);
+    }
+
+    @RequestMapping("/queryAnnouncement")
+    public void queryAnnouncement(HttpServletResponse response) throws Exception {
+        JSONObject json = new JSONObject();
+        PageData pd = this.getPageData();
+//        Long addressId = Long.parseLong(pd.getString("id"));
+        pd.put("we_code_id", 1);
+        pd.put("codeType", "ANNOUNCEMENT_TYPE");
+        List<HashMap<String, Object>> lwis = wechatIndentService.findCType(pd);
+        json.put("obj", lwis.get(0));
         super.writeJson(json, response);
     }
 
