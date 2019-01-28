@@ -187,25 +187,44 @@ public class WechatIndentServiceImpl implements WechatIndentService {
 
     public List<PageData> findIndentInfo(@Param("indentId") Long indentId) {
         String sql = "select " +
-                "  wit.id indent_id, " +
+                "  wit.id             indent_id, " +
                 "  wit.address_id, " +
-                "  wit.money_sum totalAmount, " +
+                "  wit.money_sum      totalAmount, " +
                 "  wit.operation_type operationType, " +
-                "  wit.indent_code indentCode, " +
-                "  wa.name recipientName, " +
-                "  wa.gender recipientGender, " +
-                "  wa.tel recipientTel, " +
-                "  wa.address recipientAddress, " +
+                "  wit.indent_code    indentCode, " +
+                "  wit.transport_indent transportIntent, " +
+                "  wit.recall_message   recallMessage, " +
+                "  wa.name            recipientName, " +
+                "  wa.gender          recipientGender, " +
+                "  wa.tel             recipientTel, " +
+                "  wa.address         recipientAddress, " +
                 "  wid.user_id, " +
                 "  wid.car_id, " +
                 "  wid.good_amount, " +
                 "  wid.good_id, " +
                 "  wid.good_name, " +
                 "  wid.good_price, " +
-                "  wid.money_sum total, " +
+                "  wid.money_sum      total, " +
                 "  wid.operation_date " +
-                "from wechat_indent_transaction wit " +
-                "  left join wechat_indent_detail wid on wid.indent_id = wit.id " +
+                "from (select " +
+                "        id, " +
+                "        address_id, " +
+                "        money_sum, " +
+                "        operation_type, " +
+                "        indent_code, " +
+                "        transport_indent, " +
+                "        '' recall_message " +
+                "      from wechat_indent_transaction " +
+                "      union all " +
+                "      select " +
+                "        indent_id id, " +
+                "        address_id, " +
+                "        money_sum, " +
+                "        operation_type, " +
+                "        indent_code, " +
+                "        transport_indent, " +
+                "        recall_message " +
+                "      from wechat_indent_completion) wit left join wechat_indent_detail wid on wid.indent_id = wit.id " +
                 "  left join wechat_address wa on wa.id = wit.address_id " +
                 "where wit.id = ?1";
         Query query = entityManager.createNativeQuery(sql);
@@ -227,7 +246,7 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         String transportIndent = pd.getString("transportIndent");
         Date now = new Date();
         WechatIndentCompletion wic = wechatIndentCompletionRepository.findByIndentId(indentId);
-        if ("05".equals(operationType) || "06".equals(operationType) || "07".equals(operationType)) {
+        if ("05".equals(operationType) || "06".equals(operationType) || "07".equals(operationType) || "08".equals(operationType)) {
             if (wic == null) {
                 wechatIndentTransactionRepository.delete(indentId);
                 wic = new WechatIndentCompletion();
@@ -238,12 +257,16 @@ public class WechatIndentServiceImpl implements WechatIndentService {
                 wic.setMoneySum(wit.getMoneySum());
                 wic.setOperationType(operationType);
                 wic.setUserId(wit.getUserId());
-                wic.setRecallMessage(recallMsg);
+                if (!"".equals(recallMsg)) {
+                    wic.setRecallMessage(recallMsg);
+                }
                 wic.setTransportIndent(wit.getTransportIndent());
                 wic.setOperationDate(now);
             } else {
                 wic.setOperationType(operationType);
-                wic.setRecallMessage(recallMsg);
+                if (!"".equals(recallMsg)) {
+                    wic.setRecallMessage(recallMsg);
+                }
                 wic.setModifyDatetime(now);
                 wic.setOperationDate(now);
             }

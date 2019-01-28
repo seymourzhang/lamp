@@ -116,7 +116,7 @@ public class WechatIndentController extends BaseAction {
                 transType04.add(wit);
             } else if ("05".equals(wit.get("operation_type"))) {
                 transType05.add(wit);
-            } else if ("06".equals(wit.get("operation_type"))) {
+            } else if ("06".equals(wit.get("operation_type")) || "08".equals(wit.get("operation_type"))) {
                 transType06.add(wit);
             } else if ("07".equals(wit.get("operation_type"))) {
                 transType07.add(wit);
