@@ -2,6 +2,10 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 out/
 
+### private ###
+src/main/resources/application.properties
+src/main/resources/pro/Constants.properties
+
 ### STS ###
 .apt_generated
 .classpath
