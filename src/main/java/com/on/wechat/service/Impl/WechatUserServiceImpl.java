@@ -2,8 +2,10 @@ package com.on.wechat.service.Impl;
 
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
+import com.on.wechat.entity.WechatUserShare;
 import com.on.wechat.repository.WechatAddressRepository;
 import com.on.wechat.repository.WechatUserRepository;
+import com.on.wechat.repository.WechatUserShareRepository;
 import com.on.wechat.service.WechatUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class WechatUserServiceImpl implements WechatUserService{
 
     @Autowired
     private WechatAddressRepository wechatAddressRepository;
+
+    @Autowired
+    private WechatUserShareRepository wechatUserShareRepository;
 
     public WechatUser saveWechatUser(WechatUser wechatUser) {
         return wechatUserRepository.save(wechatUser);
@@ -57,5 +62,9 @@ public class WechatUserServiceImpl implements WechatUserService{
         if (wa.getIsDef() == 1) {
             wechatAddressRepository.updateDefaultStatus(id, Long.parseLong(wa.getUserId()));
         }
+    }
+
+    public WechatUserShare dealUserShareInfo(WechatUserShare wechatUserShare) {
+        return wechatUserShareRepository.save(wechatUserShare);
     }
 }

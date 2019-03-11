@@ -41,6 +41,7 @@ public class WechatIndentCompletion implements Serializable {
      * 05:  交易成功
      * 06:  申请售后
      * 07:  取消交易
+     * 08:  协商完成
      */
     @Column(name = "operation_type", length = 10)
     private String operationType;

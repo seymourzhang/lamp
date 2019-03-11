@@ -2,6 +2,7 @@ package com.on.wechat.service;
 
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
+import com.on.wechat.entity.WechatUserShare;
 
 import java.util.List;
 
@@ -22,4 +23,6 @@ public interface WechatUserService {
     WechatAddress findDef(String userId);
 
     void addressDelete(Long id);
+
+    WechatUserShare dealUserShareInfo(WechatUserShare wechatUserShare);
 }

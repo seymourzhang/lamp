@@ -5,6 +5,7 @@ import com.on.util.action.BaseAction;
 import com.on.util.common.*;
 import com.on.wechat.entity.WechatAddress;
 import com.on.wechat.entity.WechatUser;
+import com.on.wechat.entity.WechatUserShare;
 import com.on.wechat.service.WechatIndentService;
 import com.on.wechat.service.WechatUserService;
 import org.apache.shiro.SecurityUtils;
@@ -12,12 +13,20 @@ import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.AlgorithmParameters;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.*;
 
 @RestController
@@ -39,12 +48,14 @@ public class WechatUserController extends BaseAction {
         JSONObject json = new JSONObject();
         PageData pd = this.getPageData();
         WechatUser we = new WechatUser();
-        String ni = pd.get("nick_name").toString();
+        String ni = pd.getString("nick_name");
         System.out.println("nick_name" + ni);
         String nickName = Base64.encodeToString(ni.getBytes());
         System.out.println("nick_name" + Base64.decodeToString(nickName));
-        String idStr = pd.get("id").toString();
-        String jsCode = pd.get("js_code").toString();
+        String idStr = pd.getString("id");
+        String jsCode = pd.getString("js_code");
+        String signInMode = pd.getString("signInMode");
+        String openGId = pd.getString("openGId");
 
         JSONObject params = new JSONObject();
         params.put("appid", PubFun.getPropertyValue("Pub.APPLYID"));
@@ -66,31 +77,40 @@ public class WechatUserController extends BaseAction {
             Session session = currentUser.getSession();
             session.setAttribute("sessionLocal", new SimpleHash("SHA-1", sessionKey, openId));
 //        session.setTimeout(60 * 1000 * 5);
-            String rawData = Base64.encodeToString(pd.get("raw_data").toString().getBytes());
+            String rawData = Base64.encodeToString(pd.getString("raw_data").getBytes());
             if (!"".equals(idStr)) {
                 we.setId(Long.parseLong(idStr));
             }
-            we.setNickName(nickName);
-            we.setGender(pd.get("gender").toString());
-            we.setLanguage(pd.get("language").toString());
-            we.setCity(pd.get("city").toString());
-            we.setProvince(pd.get("province").toString());
-            we.setCountry(pd.get("country").toString());
-            we.setAvatarUrl(pd.get("avatar_url").toString());
-            we.setOpenId(openId);
-            we.setSessionKey(sessionKey);
-            we.setSignature(pd.get("signature").toString());
-            we.setIv(pd.get("iv").toString());
-            we.setRawData(rawData);
-            we.setCode(pd.get("code").toString());
-            we.setUserType("01");
-
             WechatUser wCheck = wechatUserService.findByOpenId(openId);
+            if ("".equals(signInMode)) {
+                if (null != wCheck) {
+                    we.setId(wCheck.getId());
+                    we.setUserType(wCheck.getUserType());
+                } else {
+                    we.setUserType("01");
+                }
+                we.setNickName(nickName);
+                we.setGender(pd.get("gender").toString());
+                we.setLanguage(pd.get("language").toString());
+                we.setCity(pd.get("city").toString());
+                we.setProvince(pd.get("province").toString());
+                we.setCountry(pd.get("country").toString());
+                we.setAvatarUrl(pd.get("avatar_url").toString());
+                we.setOpenId(openId);
+                we.setSessionKey(sessionKey);
+                we.setSignature(pd.get("signature").toString());
+                we.setIv(pd.get("iv").toString());
+                we.setRawData(rawData);
+                we.setCode(pd.get("code").toString());
+            } else {
+                we = wCheck;
+                we.setSessionKey(sessionKey);
+            }
             if (null == wCheck) {
                 wCheck = wechatUserService.saveWechatUser(we);
             } else {
-                wCheck.setLocalSessionId(session.getId().toString());
-                wechatUserService.saveWechatUser(wCheck);
+                we.setLocalSessionId(session.getId().toString());
+                wCheck = wechatUserService.saveWechatUser(we);
             }
 
             wCheck.setNickName(Base64.decodeToString(we.getNickName()));
@@ -242,6 +262,82 @@ public class WechatUserController extends BaseAction {
         List<HashMap<String, Object>> lwis = wechatIndentService.findCType(pd);
         json.put("obj", lwis.get(0));
         super.writeJson(json, response);
+    }
+
+    @RequestMapping("/shareInfo")
+    public void shareInfo(HttpServletResponse response) throws Exception {
+        JSONObject json = new JSONObject();
+        PageData pd = this.getPageData();
+        String userId = pd.getString("user_id");
+        WechatUserShare wechatUserShare = new WechatUserShare();
+        wechatUserShare.setSharingUserId(Long.parseLong(userId));
+        wechatUserShare.setCreateDate(new Date());
+        wechatUserShare.setCreateTime(new Date());
+        wechatUserShare.setModifyDate(new Date());
+        wechatUserShare.setModifyTime(new Date());
+        wechatUserService.dealUserShareInfo(wechatUserShare);
+        super.writeJson(json, response);
+    }
+
+    @RequestMapping("/dealShareInfo")
+    public void dealShareInfo(HttpServletResponse response) throws Exception {
+        JSONObject json = new JSONObject();
+        PageData pd = this.getPageData();
+        String encryptedData = pd.getString("encryptedData");
+        String sessionKey = pd.getString("sessionKey");
+        String iv = pd.getString("iv");
+        String userId = pd.getString("userId");
+        JSONObject dealRes = dealEncryptData(encryptedData, sessionKey, iv);
+        String openGId = dealRes.getString("openGId");
+        String timestamp = dealRes.getJSONObject("watermark").getString("timestamp");
+        System.out.println("data:" + dealRes);
+        json.put("openGId", openGId);
+        if (!"".equals(openGId)) {
+            WechatUserShare wechatUserShare = new WechatUserShare();
+            wechatUserShare.setAttractedUserId(Long.parseLong(userId));
+            wechatUserShare.setOpenGroupId(openGId);
+            wechatUserShare.setCreateDate(new Date());
+            wechatUserShare.setCreateTime(new Date());
+            wechatUserShare.setModifyDate(new Date());
+            wechatUserShare.setModifyTime(new Date());
+            wechatUserService.dealUserShareInfo(wechatUserShare);
+        }
+        super.writeJson(json, response);
+    }
+
+    public JSONObject dealEncryptData(String encryptedData,String sessionkey,String iv){
+        // 被加密的数据
+        byte[] dataByte = Base64.decode(encryptedData);
+        // 加密秘钥
+        byte[] keyByte = Base64.decode(sessionkey);
+        // 偏移量
+        byte[] ivByte = Base64.decode(iv);
+        try {
+            // 如果密钥不足16位，那么就补足.  这个if 中的内容很重要
+            int base = 16;
+            if (keyByte.length % base != 0) {
+                int groups = keyByte.length / base + (keyByte.length % base != 0 ? 1 : 0);
+                byte[] temp = new byte[groups * base];
+                Arrays.fill(temp, (byte) 0);
+                System.arraycopy(keyByte, 0, temp, 0, keyByte.length);
+                keyByte = temp;
+            }
+            // 初始化
+            Security.addProvider(new BouncyCastleProvider());
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
+            SecretKeySpec spec = new SecretKeySpec(keyByte, "AES");
+            AlgorithmParameters parameters = AlgorithmParameters.getInstance("AES");
+            parameters.init(new IvParameterSpec(ivByte));
+            cipher.init(Cipher.DECRYPT_MODE, spec, parameters);// 初始化
+            byte[] resultByte = cipher.doFinal(dataByte);
+            if (null != resultByte && resultByte.length > 0) {
+                String result = new String(resultByte, "UTF-8");
+                return JSONObject.parseObject(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
