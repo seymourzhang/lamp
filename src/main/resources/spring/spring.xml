@@ -53,7 +53,7 @@
         </tx:attributes>
     </tx:advice>
 
-    <aop:aspectj-autoproxy proxy-target-class="true" />
+    <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
 
     <!-- 事物处理 -->
     <aop:config>
@@ -65,7 +65,6 @@
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </context:component-scan>
     <!-- 开启@AspectJ AOP代理 -->
-    <aop:aspectj-autoproxy proxy-target-class="true" />
     <!--创建指定线程池大小的ThreadPoolTaskScheduler实例-->
     <task:scheduler id="myScheduler" pool-size="10"/>
     <!-- 任务执行器 -->

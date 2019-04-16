@@ -7,7 +7,10 @@ package com.on.util.common;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +33,7 @@ import java.util.*;
 * 
 */ 
 public class PubFun {
-	private static Logger logger = Logger.getLogger(PubFun.class);
+	private static Logger logger = LoggerFactory.getLogger(PubFun.class);
 
 	/**
 	 * 得到当前系统日期 author: GX
@@ -181,19 +184,31 @@ public class PubFun {
 	}
 	
 	public static String getRequestPara(HttpServletRequest request){
-		StringBuilder sb = new StringBuilder ();
-        try {
-			InputStream is = request.getInputStream();
-			BufferedInputStream bis = new BufferedInputStream(is);
-			 byte [] buffer = new byte[1024];
-			 int read = 0;
-			 while ((read=bis.read(buffer)) != -1){
-			      sb.append( new String(buffer, 0, read, "UTF-8" ));
+//		ServletInputStream is;
+		String str = "";
+		try {
+			String methodMode = request.getMethod();
+			if ("POST".equals(methodMode)) {
+				//备份HttpServletRequest
+				HttpServletRequest httpRequest = (HttpServletRequest)request;
+				httpRequest = new BufferedServletRequestWrapper( httpRequest );
+				InputStream is = httpRequest.getInputStream();
+				int nRead = 1;
+				int nTotalRead = 0;
+				byte[] bytes = new byte[200000000];
+				while (nRead > 0) {
+					nRead = is.read(bytes, nTotalRead, bytes.length - nTotalRead);
+					if (nRead > 0)
+						nTotalRead = nTotalRead + nRead;
+				}
+				str = new String(bytes, 0, nTotalRead, "utf-8");
+			} else if ("GET".equals(methodMode)) {
+				str = new PageData(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()).toString();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        return sb.toString();
+		return str;
 	}
 	
 	/*public static String getRequestPara(MAPIHttpServletRequestWrapper request){
@@ -339,7 +354,7 @@ public class PubFun {
 			System.out.println("constants get IP:" + new String(conf.getString(keyName).getBytes("ISO8859-1"),"UTF-8"));
 			value = new String(conf.getString(keyName).getBytes("ISO8859-1"),"UTF-8");
 		} catch (Exception e){
-			logger.error(e.getMessage());
+			logger.info(e.getMessage());
 		} finally {
 		}
 		return value;

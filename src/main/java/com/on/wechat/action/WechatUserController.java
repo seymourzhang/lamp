@@ -82,13 +82,13 @@ public class WechatUserController extends BaseAction {
                 we.setId(Long.parseLong(idStr));
             }
             WechatUser wCheck = wechatUserService.findByOpenId(openId);
+            if (null != wCheck) {
+                we = wCheck;
+            } else {
+                we.setUserType("01");
+                we.setOpenId(openId);
+            }
             if ("".equals(signInMode)) {
-                if (null != wCheck) {
-                    we.setId(wCheck.getId());
-                    we.setUserType(wCheck.getUserType());
-                } else {
-                    we.setUserType("01");
-                }
                 we.setNickName(nickName);
                 we.setGender(pd.get("gender").toString());
                 we.setLanguage(pd.get("language").toString());
@@ -103,7 +103,6 @@ public class WechatUserController extends BaseAction {
                 we.setRawData(rawData);
                 we.setCode(pd.get("code").toString());
             } else {
-                we = wCheck;
                 we.setSessionKey(sessionKey);
             }
             if (null == wCheck) {
@@ -111,10 +110,11 @@ public class WechatUserController extends BaseAction {
             } else {
                 we.setLocalSessionId(session.getId().toString());
                 wCheck = wechatUserService.saveWechatUser(we);
+                if (!PubFun.isNull(we.getNickName())) {
+                    wCheck.setNickName(Base64.decodeToString(we.getNickName()));
+                    wCheck.setRawData(Base64.decodeToString(we.getRawData()));
+                }
             }
-
-            wCheck.setNickName(Base64.decodeToString(we.getNickName()));
-            wCheck.setRawData(Base64.decodeToString(we.getRawData()));
             json.put("obj", wCheck);
             json.put("sessionId", session.getId());
         } else {
@@ -288,7 +288,7 @@ public class WechatUserController extends BaseAction {
         String iv = pd.getString("iv");
         String userId = pd.getString("userId");
         JSONObject dealRes = dealEncryptData(encryptedData, sessionKey, iv);
-        String openGId = dealRes.getString("openGId");
+        String openGId = PubFun.isNull(dealRes.getString("openGId")) ? "" : dealRes.getString("openGId");
         String timestamp = dealRes.getJSONObject("watermark").getString("timestamp");
         System.out.println("data:" + dealRes);
         json.put("openGId", openGId);

@@ -4,12 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.api.Session;
 import com.on.util.common.*;
+import org.slf4j.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.io.ResourceLoader;
@@ -30,10 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @RestController
 @SpringBootApplication
@@ -44,7 +42,7 @@ public class BaseAction {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
-	protected Logger logger = Logger.getLogger(this.getClass());
+	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	static final String KEY_SIGN = "__sign__";
 	static final String KEY_PARAM = "param";
@@ -53,12 +51,13 @@ public class BaseAction {
 	/**
 	 * 得到PageData
 	 */
-	public PageData getPageData() throws Exception{
+	public PageData getPageData() throws Exception {
 		PageData pd = new PageData();
 		String methodMode = this.getRequest().getMethod();
 		if ("POST".equals(methodMode)) {
-
-			BufferedReader br = new BufferedReader(new InputStreamReader((ServletInputStream) this.getRequest().getInputStream(), "utf-8"));
+			HttpServletRequest httpRequest = (HttpServletRequest)this.getRequest();
+			httpRequest = new BufferedServletRequestWrapper( httpRequest );
+			BufferedReader br = new BufferedReader(new InputStreamReader((ServletInputStream) httpRequest.getInputStream(), "utf-8"));
 			StringBuffer sb = new StringBuffer("");
 			String temp;
 			while ((temp = br.readLine()) != null) {

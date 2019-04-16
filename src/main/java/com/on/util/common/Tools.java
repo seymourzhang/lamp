@@ -1,10 +1,11 @@
 package com.on.util.common;
 
+import org.slf4j.Logger;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -20,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Tools {
-	private static Logger mLogger =Logger.getLogger(Tools.class);
+	private static Logger mLogger = LoggerFactory.getLogger(Tools.class);
 	
 	/**
 	 * 随机生成六位数验证码 

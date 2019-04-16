@@ -5,7 +5,9 @@
  */
 package com.on.util.common;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -27,7 +29,7 @@ import java.util.Set;
 * 
 */ 
 public class IPUtil {
-	private static Logger mLogger = Logger.getLogger(IPUtil.class);
+	private static Logger mLogger = LoggerFactory.getLogger(IPUtil.class);
 
     public static String getIpAddr(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
@@ -80,7 +82,7 @@ public class IPUtil {
 			    	} 
 		    	}
 	    	}
-			mLogger.debug("LocalIp==" + curIp);
+			mLogger.info("LocalIp==" + curIp);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
