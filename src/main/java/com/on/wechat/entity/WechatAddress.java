@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name="wechat_address", catalog=  "pro_lamp")
+@Table(name="wechat_address", catalog=  "pro_wechat_cherry")
 public class WechatAddress implements Serializable {
     private static final long serialVersionUID = 1L;
 

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name="wechat_shopping_cart", catalog=  "pro_lamp",
+@Table(name="wechat_shopping_cart", catalog=  "pro_wechat_cherry",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"Id", "user_id"})
         })

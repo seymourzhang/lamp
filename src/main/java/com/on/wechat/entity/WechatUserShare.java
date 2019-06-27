@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="wechat_user_share", catalog="pro_lamp",
+@Table(name="wechat_user_share", catalog="pro_wechat_cherry",
         uniqueConstraints = {
             @UniqueConstraint(columnNames = {"Id", "open_group_id"})
         })

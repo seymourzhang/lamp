@@ -23,7 +23,7 @@ public class LoginFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal (HttpServletRequest var1, HttpServletResponse var2, FilterChain var3) throws IOException, ServletException {
         logger.info("filter doFilter here ==================");
-        String jsonString = PubFun.getRequestPara(var1);
+//        String jsonString = PubFun.getRequestPara(var1);
         var3.doFilter(var1, var2);
     }
 

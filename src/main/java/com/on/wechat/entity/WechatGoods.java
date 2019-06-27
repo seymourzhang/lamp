@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name="wechat_goods", catalog=  "pro_lamp")
+@Table(name="wechat_goods", catalog=  "pro_wechat_cherry")
 public class WechatGoods implements Serializable {
     private static final long serialVersionUID = 1L;
 

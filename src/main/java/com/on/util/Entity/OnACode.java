@@ -3,7 +3,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name="on_a_code", catalog=  "pro_lamp")
+@Table(name="on_a_code", catalog=  "pro_wechat_cherry")
 public class OnACode {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

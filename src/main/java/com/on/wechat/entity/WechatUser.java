@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="wechat_user", catalog=  "pro_lamp",
+@Table(name="wechat_user", catalog=  "pro_wechat_cherry",
         uniqueConstraints = {
             @UniqueConstraint(columnNames = {"Id", "open_id"})
         })
@@ -57,6 +57,10 @@ public class WechatUser implements Serializable {
 
     @Column(name = "local_session_id", length = 100)
     private String localSessionId;
+
+    @Column(name = "nick_name_real", length = 100)
+    private String nickNameReal;
+
 
     /**
      * 注释:
@@ -192,5 +196,13 @@ public class WechatUser implements Serializable {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getNickNameReal() {
+        return nickNameReal;
+    }
+
+    public void setNickNameReal(String nickNameReal) {
+        this.nickNameReal = nickNameReal;
     }
 }

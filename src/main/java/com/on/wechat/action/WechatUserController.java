@@ -88,26 +88,48 @@ public class WechatUserController extends BaseAction {
                 we.setUserType("01");
                 we.setOpenId(openId);
             }
-            if ("".equals(signInMode)) {
-                we.setNickName(nickName);
-                we.setGender(pd.get("gender").toString());
-                we.setLanguage(pd.get("language").toString());
-                we.setCity(pd.get("city").toString());
-                we.setProvince(pd.get("province").toString());
-                we.setCountry(pd.get("country").toString());
-                we.setAvatarUrl(pd.get("avatar_url").toString());
+            if (!"checkSession".equals(signInMode)) {
+                if (!PubFun.isNull(pd.get("nick_name"))) {
+                    we.setNickName(nickName);
+                }
+                if (!PubFun.isNull(ni)) {
+                    we.setNickNameReal(ni);
+                }
+                if (!PubFun.isNull(pd.get("gender"))) {
+                    we.setGender(pd.get("gender").toString());
+                }
+                if (!PubFun.isNull(pd.get("language"))) {
+                    we.setLanguage(pd.get("language").toString());
+                }
+                if (!PubFun.isNull(pd.get("city"))) {
+                    we.setCity(pd.get("city").toString());
+                }
+                if (!PubFun.isNull(pd.get("province"))) {
+                    we.setProvince(pd.get("province").toString());
+                }
+                if (!PubFun.isNull(pd.get("country"))) {
+                    we.setCountry(pd.get("country").toString());
+                }
+                if (!PubFun.isNull(pd.get("avatar_url"))) {
+                    we.setAvatarUrl(pd.get("avatar_url").toString());
+                }
+                if (!PubFun.isNull(pd.get("signature"))) {
+                    we.setSignature(pd.get("signature").toString());
+                }
+                if (!PubFun.isNull(pd.get("iv"))) {
+                    we.setIv(pd.get("iv").toString());
+                }
+                if (!PubFun.isNull(pd.get("code"))) {
+                    we.setCode(pd.get("code").toString());
+                }
                 we.setOpenId(openId);
                 we.setSessionKey(sessionKey);
-                we.setSignature(pd.get("signature").toString());
-                we.setIv(pd.get("iv").toString());
                 we.setRawData(rawData);
-                we.setCode(pd.get("code").toString());
             } else {
                 we.setSessionKey(sessionKey);
-            }
-            if (null == wCheck) {
                 wCheck = wechatUserService.saveWechatUser(we);
-            } else {
+            }
+            if (wCheck != null || "normal".equals(signInMode)) {
                 we.setLocalSessionId(session.getId().toString());
                 wCheck = wechatUserService.saveWechatUser(we);
                 if (!PubFun.isNull(we.getNickName())) {
@@ -260,7 +282,9 @@ public class WechatUserController extends BaseAction {
         pd.put("we_code_id", 1);
         pd.put("codeType", "ANNOUNCEMENT_TYPE");
         List<HashMap<String, Object>> lwis = wechatIndentService.findCType(pd);
-        json.put("obj", lwis.get(0));
+        if (lwis.size() != 0) {
+            json.put("obj", lwis.get(0));
+        }
         super.writeJson(json, response);
     }
 
@@ -342,12 +366,7 @@ public class WechatUserController extends BaseAction {
 
 
     /*public static void main(String[] args) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("appid", "wx255aa55368e8f275");
-        params.put("secret", "33df13966f5562cbbf1b42cc10b18125");
-        params.put("js_code", "021ndiG72gcemS0fBkE72EqCG72ndiGn");
-        params.put("grant_type", "authorization_code");
-//        post("https://api.weixin.qq.com/sns/jscode2session", params);
+        System.out.println("nick_name" + Base64.decodeToString("5p2O5ZOI5ZOI"));
     }*/
 
 }

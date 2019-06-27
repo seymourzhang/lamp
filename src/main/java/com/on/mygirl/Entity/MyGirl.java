@@ -5,7 +5,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import java.util.Date;
 
 @Entity
-@Table(name="my_girl", catalog=  "pro_lamp")
+@Table(name="my_girl", catalog=  "pro_wechat_cherry")
 public class MyGirl {
     private static final long serialVersionUID = 1L;
 

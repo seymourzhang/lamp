@@ -404,9 +404,11 @@ public class WechatIndentController extends BaseAction {
         pd.put("codeType", "VIDEO_URL");
         pd.put("we_code_id", "1");
         List<HashMap<String, Object>> wc = wechatIndentService.findCType(pd);
-        String videoUrl = "http://vv.video.qq.com/getinfo?vids=" + wc.get(0).get("weBak3") + "&platform=101001&charge=0&otype=json";//e0301ajih22
-        JSONObject token = PubFun.get(videoUrl);
-        super.writeJson(token, response);
+        if (wc.size() != 0) {
+            String videoUrl = "http://vv.video.qq.com/getinfo?vids=" + wc.get(0).get("weBak3") + "&platform=101001&charge=0&otype=json";//e0301ajih22
+            JSONObject token = PubFun.get(videoUrl);
+            super.writeJson(token, response);
+        }
     }
 
 }

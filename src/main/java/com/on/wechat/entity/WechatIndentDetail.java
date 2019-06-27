@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name="wechat_indent_detail", catalog=  "pro_lamp")
+@Table(name="wechat_indent_detail", catalog=  "pro_wechat_cherry")
 public class WechatIndentDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
