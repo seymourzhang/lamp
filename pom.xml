@@ -198,6 +198,7 @@
 					<workingDirectory>src/main/on-app</workingDirectory>
 					<arguments>
 						<argument>build</argument>
+						<argument>--prod</argument>
 						<argument>--output-path</argument>
 						<argument>src/dist</argument>
 					</arguments>

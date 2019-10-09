@@ -25,6 +25,12 @@ public class WechatIndentServiceImpl implements WechatIndentService {
     private WechatGoodsRepository wechatGoodsRepository;
 
     @Autowired
+    private WechatGoodsSubRepository wechatGoodsSubRepository;
+
+    @Autowired
+    private WechatGoodsSizeRepository wechatGoodsSizeRepository;
+
+    @Autowired
     private WechatIndentTransactionRepository wechatIndentTransactionRepository;
 
     @Autowired
@@ -70,6 +76,41 @@ public class WechatIndentServiceImpl implements WechatIndentService {
         //转换为Map集合
         query.unwrap(org.hibernate.SQLQuery.class).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
+    }
+
+    public void saveGoods(PageData pd) {
+        WechatGoods wg = new WechatGoods();
+        wg.setGoodsName(pd.get("goodsName").toString());
+        wg.setGoodsPrice(new BigDecimal(pd.get("goodsPrice").toString()));
+        wg.setGoodsStatus("1");
+        wg.setGoodsType("1");
+        wg.setInventoryAmount(0);
+        wg.setModifyDatetime(new Date());
+        wg.setThumbUrl(pd.get("thumbUrl").toString());
+        WechatGoods newOne = wechatGoodsRepository.save(wg);
+        Long goodsId = newOne.getId();
+
+        List details = Arrays.asList(pd.get("details"));
+        List<WechatGoodsSub> lwg = new ArrayList<>();
+        for (Object detail : details) {
+            WechatGoodsSub wgs = new WechatGoodsSub();
+            wgs.setGoodsId(goodsId);
+            wgs.setThumbUrlSub(detail.toString());
+            wgs.setModifyDatetime(new Date());
+            lwg.add(wgs);
+        }
+        wechatGoodsSubRepository.save(lwg);
+
+        List sizes = Arrays.asList(pd.get("sizes"));
+        List<WechatGoodsSize> lwg2 = new ArrayList<>();
+        for (Object size : sizes) {
+            WechatGoodsSize wgs = new WechatGoodsSize();
+            wgs.setGoodsId(goodsId);
+            wgs.setGoodsSize(size.toString());
+            wgs.setModifyDatetime(new Date());
+            lwg2.add(wgs);
+        }
+        wechatGoodsSizeRepository.save(lwg2);
     }
 
     public List<HashMap<String, Object>> findCType(PageData pd) {

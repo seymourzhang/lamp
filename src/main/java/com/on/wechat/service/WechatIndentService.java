@@ -30,4 +30,6 @@ public interface WechatIndentService {
 
     WechatIndentCompletion findByIndentId(Long indentId);
 
+    void saveGoods(PageData pd);
+
 }

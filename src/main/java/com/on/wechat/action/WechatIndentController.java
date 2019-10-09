@@ -54,6 +54,15 @@ public class WechatIndentController extends BaseAction {
         super.writeJson(json, response);
     }
 
+    @RequestMapping("/addMaterials")
+    public void addMaterials(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        PageData pd = this.getPageData();
+//        int userId = pd.getInteger("user_id");
+        JSONObject json = new JSONObject();
+        wechatIndentService.saveGoods(pd);
+        super.writeJson(json, response);
+    }
+
     @RequestMapping("/generateIndent")
     public void generateIndent(HttpServletResponse response) throws Exception {
         PageData pd = this.getPageData();
