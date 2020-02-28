@@ -88,7 +88,7 @@ export class AnalyseComponent implements OnInit {
               this._message.create('error', val.Error);
             }
             this._isSpinning = false;
-          }, '5000');
+          }, '500');
         },
         response => {
           console.log('Request Error: ', response);
